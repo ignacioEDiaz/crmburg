@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    background-color: #161616;
+    overscroll-behavior: none;
+    color: #ffffff;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glassmorphism mate oscuro exacto a la imagen del mockup */
+.glass-effect {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background-color: rgba(36, 36, 38, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Resplandor ambiental de fondo verdoso/oscuro sutil */
+.dark-ambient-glow {
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(34, 100, 44, 0.12) 0%, rgba(22, 22, 22, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
