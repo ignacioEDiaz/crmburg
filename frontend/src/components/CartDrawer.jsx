@@ -57,7 +57,7 @@ export default function CartDrawer({ isOpen, onClose }) {
 
     let couponText = appliedCoupon ? `\n\n🎟️ Cupón Aplicado: ${appliedCoupon.code} (-$${appliedCoupon.discountAmount.toFixed(2)})` : '';
 
-    const message = `¡Hola Burger CRM! 🍔 Quiero realizar el siguiente pedido:\n\n${itemsText}${couponText}\n\n💰 *Total Final: $${finalTotal.toFixed(2)}*\n\n¡Gracias!`;
+    const message = `¡Hola CRASH BURGERS! 🍔 Quiero realizar el siguiente pedido:\n\n${itemsText}${couponText}\n\n💰 *Total Final: $${finalTotal.toFixed(2)}*\n\n¡Gracias!`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/5491122334455?text=${encodedMessage}`;
@@ -70,19 +70,19 @@ export default function CartDrawer({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm flex justify-end">
-      <div className="w-full max-w-md bg-[#1c1c1e] text-white min-h-screen h-full flex flex-col justify-between shadow-2xl border-l border-white/10 p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-md flex justify-end">
+      <div className="w-full max-w-md bg-[#18181b] text-white min-h-screen h-full flex flex-col justify-between shadow-2xl border-l border-white/10 p-6 overflow-y-auto">
         
         {/* Header */}
         <div>
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-6 h-6 text-primary" />
-              <h2 className="text-xl font-bold text-white">Tu Carrito de Compras</h2>
+              <ShoppingBag className="w-6 h-6 text-[#ffb700]" />
+              <h2 className="text-xl font-black text-white">Tu Carrito CRASH</h2>
             </div>
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-[#2c2c2e] border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-colors"
+              className="w-9 h-9 rounded-full bg-[#242426] border border-white/10 flex items-center justify-center text-white hover:bg-[#ffb700] hover:text-black transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -94,7 +94,7 @@ export default function CartDrawer({ isOpen, onClose }) {
               <div className="text-center py-12 text-secondary flex flex-col items-center gap-3">
                 <ShoppingBag className="w-12 h-12 opacity-30" />
                 <p className="text-sm font-bold">Tu carrito está vacío</p>
-                <p className="text-xs">Agrega deliciosas hamburguesas y combos para continuar.</p>
+                <p className="text-xs">Agrega hamburguesas y combos CRASH para continuar.</p>
               </div>
             ) : (
               cart.map((item, index) => (
@@ -106,14 +106,14 @@ export default function CartDrawer({ isOpen, onClose }) {
                     <div className="min-w-0">
                       <h4 className="font-bold text-white text-sm truncate">{item.name}</h4>
                       {item.options && (
-                        <p className="text-[11px] text-primary font-semibold mt-0.5">
+                        <p className="text-[11px] text-[#ffb700] font-semibold mt-0.5">
                           {item.options.size ? `${item.options.size} ` : ''}
                           {item.options.addCheese ? '• +Queso ' : ''}
                           {item.options.extraPatty ? '• +Medallón ' : ''}
                         </p>
                       )}
                       <p className="text-xs text-secondary font-bold mt-1">
-                        {item.quantity}x <span className="text-white font-extrabold">${Number(item.price).toFixed(2)}</span>
+                        {item.quantity}x <span className="text-[#ffb700] font-black">${Number(item.price).toFixed(2)}</span>
                       </p>
                     </div>
                   </div>
@@ -138,7 +138,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             {/* Backend Validated Coupon Input */}
             <div className="bg-[#242426] border border-white/10 rounded-2xl p-3 space-y-2">
               <label className="text-xs text-secondary font-bold flex items-center gap-1.5">
-                <Ticket className="w-4 h-4 text-primary" />
+                <Ticket className="w-4 h-4 text-[#ffb700]" />
                 ¿Tienes un cupón de descuento?
               </label>
 
@@ -149,12 +149,12 @@ export default function CartDrawer({ isOpen, onClose }) {
                     placeholder="Código (ej. BURGER20)"
                     value={couponCodeInput}
                     onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
-                    className="flex-1 bg-[#1c1c1e] border border-white/10 rounded-xl px-3 py-2 text-xs font-mono font-bold tracking-wider uppercase text-white placeholder-secondary outline-none focus:border-primary"
+                    className="flex-1 bg-[#18181b] border border-white/10 rounded-xl px-3 py-2 text-xs font-mono font-bold tracking-wider uppercase text-white placeholder-secondary outline-none focus:border-[#ffb700]"
                   />
                   <button
                     type="submit"
                     disabled={couponLoading}
-                    className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary-container transition-colors disabled:opacity-50 shadow-md"
+                    className="px-4 py-2 rounded-xl bg-[#ffb700] text-black font-black text-xs hover:bg-yellow-300 transition-colors disabled:opacity-50 shadow-md"
                   >
                     {couponLoading ? '...' : 'Aplicar'}
                   </button>
@@ -201,7 +201,7 @@ export default function CartDrawer({ isOpen, onClose }) {
 
               <div className="flex justify-between items-center text-lg font-black text-white pt-1 border-t border-white/10">
                 <span>Total Final:</span>
-                <span className="text-primary font-price-display text-2xl">${finalTotal.toFixed(2)}</span>
+                <span className="text-[#ffb700] font-price-display text-2xl font-black">${finalTotal.toFixed(2)}</span>
               </div>
             </div>
 
@@ -209,7 +209,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             <div className="space-y-2">
               <button
                 onClick={handleWhatsAppCheckout}
-                className="w-full py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all"
+                className="w-full py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all uppercase tracking-wider"
               >
                 <Send className="w-4 h-4" />
                 Pedir y Pagar por WhatsApp
