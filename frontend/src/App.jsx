@@ -42,21 +42,29 @@ export default function App() {
           {clientTab === 'favorites' && <FavoritesView />}
         </div>
       ) : (
-        <div className="min-h-screen bg-surface font-body-lg text-on-surface">
+        <div className="min-h-screen bg-[#121212] font-body-lg text-on-surface relative">
           <CrmSidebar />
           <div className="pl-0 lg:pl-72 pt-12 print:pl-0 print:pt-0 w-full transition-all">
             <CrmHeader />
-            <main className="relative pt-20 min-h-screen px-4 md:px-xl pb-xl bg-surface-dim print:pt-0 print:p-0 print:bg-white w-full overflow-x-hidden">
-              {crmTab === 'daily-orders' && <CrmDailyOrdersView />}
-              {crmTab === 'reports' && <CrmReportsView />}
-              {crmTab === 'coupons' && <CrmCouponsView />}
-              {crmTab === 'offers' && <CrmOffersView />}
-              {crmTab === 'dashboard' && <CrmDashboardView />}
-              {crmTab === 'menu' && <CrmMenuCategoriesView />}
-              {crmTab === 'monthly-orders' && <CrmMonthlyOrdersView />}
-              {crmTab === 'inventory' && <CrmInventoryView />}
-              {crmTab === 'customers' && <CrmCustomersView />}
-              {crmTab === 'settings' && <CrmSettingsView />}
+            <main className="relative pt-20 min-h-screen px-4 md:px-xl pb-xl bg-[#121212] print:pt-0 print:p-0 print:bg-white w-full overflow-x-hidden">
+              
+              {/* Subtle Crash Watermark Silhouette in CRM Background */}
+              <div className="fixed right-10 bottom-10 pointer-events-none opacity-[0.05] z-0 select-none hidden md:flex items-center justify-center">
+                <img src="/crash-silhouette.png" alt="" className="w-[500px] h-[500px] object-contain filter invert" />
+              </div>
+
+              <div className="relative z-10">
+                {crmTab === 'daily-orders' && <CrmDailyOrdersView />}
+                {crmTab === 'reports' && <CrmReportsView />}
+                {crmTab === 'coupons' && <CrmCouponsView />}
+                {crmTab === 'offers' && <CrmOffersView />}
+                {crmTab === 'dashboard' && <CrmDashboardView />}
+                {crmTab === 'menu' && <CrmMenuCategoriesView />}
+                {crmTab === 'monthly-orders' && <CrmMonthlyOrdersView />}
+                {crmTab === 'inventory' && <CrmInventoryView />}
+                {crmTab === 'customers' && <CrmCustomersView />}
+                {crmTab === 'settings' && <CrmSettingsView />}
+              </div>
             </main>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Ticket, Plus, Check, Clock, Trash2, Calendar, ShieldCheck, Tag, Zap } from 'lucide-react';
+import { Ticket, Plus, Trash2, Calendar, ShieldCheck, Tag, Zap } from 'lucide-react';
 
 export default function CrmCouponsView() {
   const { coupons, products, handleCreateCoupon, handleUpdateCoupon, handleDeleteCoupon } = useApp();
@@ -9,11 +9,11 @@ export default function CrmCouponsView() {
   
   // Coupon Form States
   const [code, setCode] = useState('');
-  const [discountType, setDiscountType] = useState('percentage'); // 'percentage' | 'fixed'
+  const [discountType, setDiscountType] = useState('percentage');
   const [discountValue, setDiscountValue] = useState(20);
-  const [scope, setScope] = useState('all'); // 'all' | 'product'
+  const [scope, setScope] = useState('all');
   const [productName, setProductName] = useState(products[0]?.name || 'Hamburguesa de Pollo Picante');
-  const [durationDays, setDurationDays] = useState('forever'); // '1', '2', '7', '30', 'forever'
+  const [durationDays, setDurationDays] = useState('forever');
   const [maxUses, setMaxUses] = useState('');
 
   const handleOpenCreate = () => {
@@ -51,8 +51,8 @@ export default function CrmCouponsView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-headline-xl font-headline-xl text-on-surface">Gestión de Cupones de Descuento</h1>
-            <span className="bg-primary/20 text-primary font-bold text-xs px-3 py-1 rounded-full border border-primary/30 flex items-center gap-1">
+            <h1 className="text-headline-xl font-headline-xl text-on-surface font-black">Gestión de Cupones de Descuento</h1>
+            <span className="bg-[#ffb700]/20 text-[#ffb700] font-bold text-xs px-3 py-1 rounded-full border border-[#ffb700]/30 flex items-center gap-1">
               <Ticket className="w-3.5 h-3.5" />
               Promociones
             </span>
@@ -64,7 +64,7 @@ export default function CrmCouponsView() {
 
         <button
           onClick={handleOpenCreate}
-          className="bg-primary hover:bg-primary-container text-on-primary font-bold px-lg py-sm rounded-full shadow-md transition-all flex items-center gap-xs"
+          className="bg-[#ffb700] hover:bg-yellow-300 text-black font-black px-lg py-sm rounded-full shadow-md transition-all flex items-center gap-xs uppercase tracking-wider text-xs"
         >
           <Plus className="w-4 h-4" />
           Generar Nuevo Cupón
@@ -73,7 +73,7 @@ export default function CrmCouponsView() {
 
       {/* Coupons List / Grid */}
       {coupons.length === 0 ? (
-        <div className="bg-surface-container-low/60 border border-white/10 rounded-3xl p-12 text-center text-on-surface-variant flex flex-col items-center justify-center gap-3">
+        <div className="bg-[#242426] border border-white/10 rounded-3xl p-12 text-center text-on-surface-variant flex flex-col items-center justify-center gap-3">
           <Ticket className="w-12 h-12 text-on-surface-variant/40" />
           <h3 className="text-xl font-bold text-on-surface">No hay cupones generados aún</h3>
           <p className="text-sm">Genera tu primer cupón de descuento para que tus clientes lo utilicen en el carrito.</p>
@@ -87,7 +87,7 @@ export default function CrmCouponsView() {
             return (
               <div
                 key={coup.id}
-                className={`bg-surface-container-low/80 border rounded-3xl p-lg flex flex-col justify-between shadow-xl relative transition-all ${
+                className={`bg-[#242426] border rounded-3xl p-lg flex flex-col justify-between shadow-xl relative transition-all ${
                   !coup.isActive || isExpired || isMaxedOut
                     ? 'border-rose-500/30 opacity-75'
                     : 'border-emerald-500/30'
@@ -95,14 +95,14 @@ export default function CrmCouponsView() {
               >
                 {/* Status Badges */}
                 <div className="flex justify-between items-start mb-md">
-                  <span className="font-mono text-primary text-2xl font-black bg-primary/10 border border-primary/30 px-3 py-1 rounded-2xl tracking-wider">
+                  <span className="font-mono text-[#ffb700] text-2xl font-black bg-[#ffb700]/10 border border-[#ffb700]/30 px-3 py-1 rounded-2xl tracking-wider">
                     {coup.code}
                   </span>
 
                   <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
                     isExpired ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
                     isMaxedOut ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
-                    coup.isActive ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-surface-container-high text-on-surface-variant'
+                    coup.isActive ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-[#2c2c2e] text-on-surface-variant'
                   }`}>
                     ● {isExpired ? 'Expirado' : isMaxedOut ? 'Agotado' : coup.isActive ? 'Activo' : 'Inactivo'}
                   </span>
@@ -111,7 +111,7 @@ export default function CrmCouponsView() {
                 {/* Details */}
                 <div className="space-y-2 my-2">
                   <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-primary" />
+                    <Zap className="w-4 h-4 text-[#ffb700]" />
                     <span className="text-body-lg font-black text-on-surface">
                       Descuento: {coup.discountType === 'percentage' ? `${coup.discountValue}%` : `$ ${coup.discountValue}`}
                     </span>
@@ -167,9 +167,9 @@ export default function CrmCouponsView() {
 
       {/* Modal: Generar Nuevo Cupón */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-surface-container-low border border-white/10 rounded-3xl p-lg w-full max-w-lg flex flex-col gap-md shadow-2xl my-8">
-            <h3 className="text-headline-lg font-bold text-on-surface">Generar Cupón Personalizado</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="bg-[#18181b] border border-white/10 rounded-3xl p-lg w-full max-w-lg flex flex-col gap-md shadow-2xl my-8 text-white">
+            <h3 className="text-headline-lg font-black text-on-surface">Generar Cupón Personalizado</h3>
             
             <form onSubmit={onSubmitCoupon} className="flex flex-col gap-md">
               <div>
@@ -181,12 +181,12 @@ export default function CrmCouponsView() {
                     placeholder="Ej. BURGER20"
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    className="w-full bg-surface-container-highest rounded-xl p-sm text-on-surface font-mono font-bold tracking-wider uppercase border border-white/10 focus:outline-none focus:border-primary"
+                    className="w-full bg-[#242426] rounded-xl p-sm text-on-surface font-mono font-bold tracking-wider uppercase border border-white/10 focus:outline-none focus:border-[#ffb700]"
                   />
                   <button
                     type="button"
                     onClick={() => setCode(`BURGER${Math.floor(10 + Math.random() * 90)}`)}
-                    className="px-3 py-1 rounded-xl bg-surface-container-high text-xs text-secondary hover:text-white font-bold shrink-0 border border-white/10"
+                    className="px-3 py-1 rounded-xl bg-[#2c2c2e] text-xs text-secondary hover:text-white font-bold shrink-0 border border-white/10"
                   >
                     Auto
                   </button>
@@ -199,7 +199,7 @@ export default function CrmCouponsView() {
                   <select
                     value={discountType}
                     onChange={(e) => setDiscountType(e.target.value)}
-                    className="w-full bg-surface-container-highest rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-primary"
+                    className="w-full bg-[#242426] rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-[#ffb700]"
                   >
                     <option value="percentage">Porcentaje (%)</option>
                     <option value="fixed">Monto Fijo ($)</option>
@@ -216,7 +216,7 @@ export default function CrmCouponsView() {
                     placeholder={discountType === 'percentage' ? '20' : '5.00'}
                     value={discountValue}
                     onChange={(e) => setDiscountValue(e.target.value)}
-                    className="w-full bg-surface-container-highest rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-primary font-bold text-primary"
+                    className="w-full bg-[#242426] rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-[#ffb700] font-bold text-[#ffb700]"
                   />
                 </div>
               </div>
@@ -227,7 +227,7 @@ export default function CrmCouponsView() {
                 <select
                   value={scope}
                   onChange={(e) => setScope(e.target.value)}
-                  className="w-full bg-surface-container-highest rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-primary"
+                  className="w-full bg-[#242426] rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-[#ffb700]"
                 >
                   <option value="all">Cualquier producto / Todo el carrito</option>
                   <option value="product">Producto específico seleccionado</option>
@@ -240,7 +240,7 @@ export default function CrmCouponsView() {
                   <select
                     value={productName}
                     onChange={(e) => setProductName(e.target.value)}
-                    className="w-full bg-surface-container-highest rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-primary"
+                    className="w-full bg-[#242426] rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-[#ffb700]"
                   >
                     {products.map(p => (
                       <option key={p.id || p.name} value={p.name}>{p.name}</option>
@@ -256,7 +256,7 @@ export default function CrmCouponsView() {
                   <select
                     value={durationDays}
                     onChange={(e) => setDurationDays(e.target.value)}
-                    className="w-full bg-surface-container-highest rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-primary"
+                    className="w-full bg-[#242426] rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-[#ffb700]"
                   >
                     <option value="1">1 día</option>
                     <option value="2">2 días</option>
@@ -274,7 +274,7 @@ export default function CrmCouponsView() {
                     placeholder="Ej. 50 (o vacío = Ilimitado)"
                     value={maxUses}
                     onChange={(e) => setMaxUses(e.target.value)}
-                    className="w-full bg-surface-container-highest rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-primary font-bold"
+                    className="w-full bg-[#242426] rounded-xl p-sm text-on-surface border border-white/10 focus:outline-none focus:border-[#ffb700] font-bold"
                   />
                 </div>
               </div>
@@ -283,13 +283,13 @@ export default function CrmCouponsView() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-md py-sm rounded-full bg-surface-container-highest text-on-surface-variant hover:text-on-surface font-bold text-xs"
+                  className="px-md py-sm rounded-full bg-[#242426] text-secondary hover:text-white font-bold text-xs"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-md py-sm rounded-full bg-primary text-on-primary font-bold text-xs shadow-md"
+                  className="px-md py-sm rounded-full bg-[#ffb700] text-black font-black text-xs shadow-md uppercase tracking-wider"
                 >
                   Crear Cupón
                 </button>

@@ -19,19 +19,19 @@ export default function CrmHeader() {
   };
 
   return (
-    <header className="fixed top-12 left-0 lg:left-72 right-0 h-16 bg-[#1c1c1e]/90 backdrop-blur-md border-b border-white/5 z-30 px-4 md:px-xl flex items-center justify-between shadow-sm print:hidden">
+    <header className="fixed top-12 left-0 lg:left-72 right-0 h-16 bg-[#18181b]/90 backdrop-blur-md border-b border-white/5 z-30 px-4 md:px-xl flex items-center justify-between shadow-sm print:hidden">
       
       {/* Mobile Hamburger Button + Section Title */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => setIsCrmMobileSidebarOpen(true)}
-          className="lg:hidden w-9 h-9 rounded-full bg-[#2c2c2e] border border-white/10 text-white flex items-center justify-center hover:bg-primary transition-colors shrink-0"
+          className="lg:hidden w-9 h-9 rounded-full bg-[#242426] border border-white/10 text-white flex items-center justify-center hover:bg-[#ffb700] hover:text-black transition-colors shrink-0"
           title="Abrir Menú CRM"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        <h2 className="font-title-lg text-title-lg text-on-surface truncate font-bold text-sm md:text-base">
+        <h2 className="font-title-lg text-title-lg text-on-surface truncate font-black text-sm md:text-base">
           {tabTitles[crmTab] || 'CRM Dashboard'}
         </h2>
       </div>
@@ -39,9 +39,9 @@ export default function CrmHeader() {
       {/* Profile & Notifications */}
       <div className="flex items-center gap-md">
         <div className="relative">
-          <button className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors">
+          <button className="w-10 h-10 rounded-full bg-[#242426] border border-white/10 flex items-center justify-center text-on-surface-variant hover:text-[#ffb700] transition-colors">
             <span className="material-symbols-outlined text-[20px]">notifications</span>
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary"></span>
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#ffb700]"></span>
           </button>
         </div>
 

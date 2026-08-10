@@ -41,13 +41,13 @@ export default function CrmSidebar() {
               <img src="/logo.png" alt="CRASH Logo" className="w-full h-full rounded-full object-cover bg-black" />
             </div>
             <span className="font-black text-headline-lg tracking-tight text-on-surface">
-              CRASH<span className="text-primary">CRM</span>
+              CRASH<span className="text-[#ffb700]">CRM</span>
             </span>
           </div>
 
           <button
             onClick={() => setIsCrmMobileSidebarOpen(false)}
-            className="lg:hidden w-8 h-8 rounded-full bg-[#2c2c2e] border border-white/10 text-white flex items-center justify-center hover:bg-primary hover:text-black transition-colors"
+            className="lg:hidden w-8 h-8 rounded-full bg-[#2c2c2e] border border-white/10 text-white flex items-center justify-center hover:bg-[#ffb700] hover:text-black transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -64,9 +64,9 @@ export default function CrmSidebar() {
                   setCrmTab(item.id);
                   setIsCrmMobileSidebarOpen(false);
                 }}
-                className={`w-full flex items-center px-md py-md rounded-xl transition-all font-body-lg text-left ${
+                className={`w-full flex items-center px-md py-md rounded-2xl transition-all font-body-lg text-left ${
                   isActive
-                    ? 'bg-primary text-black font-black shadow-md'
+                    ? 'bg-[#ffb700] text-black font-black shadow-md'
                     : 'text-on-surface-variant hover:bg-surface-container-highest/50 hover:text-on-surface'
                 }`}
               >
