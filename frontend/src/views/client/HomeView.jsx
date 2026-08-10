@@ -181,9 +181,9 @@ export default function HomeView() {
           {/* Offers Banner Carousel with Gold CRASH Branding */}
           <div className="relative w-full rounded-3xl bg-[#242426] border border-white/10 p-lg md:p-xl flex flex-col gap-sm shadow-xl transition-all overflow-hidden">
             
-            {/* Subtle Crash Watermark Background */}
-            <div className="absolute right-0 bottom-0 top-0 w-1/2 pointer-events-none opacity-[0.06] flex items-center justify-end pr-4">
-              <img src="/crash-silhouette.png" alt="" className="h-full object-contain filter invert" />
+            {/* Larger Crash Watermark Background in Banner */}
+            <div className="absolute right-0 bottom-0 top-0 w-2/3 pointer-events-none opacity-[0.09] flex items-center justify-end pr-2 overflow-hidden select-none">
+              <img src="/crash-silhouette.png" alt="" className="h-[140%] object-contain filter invert scale-125 translate-y-4" />
             </div>
 
             <div className="flex flex-col md:flex-row items-center justify-between gap-md min-h-[160px]">
@@ -297,9 +297,9 @@ export default function HomeView() {
                       onClick={() => setSelectedProduct(product)}
                       className="relative w-full rounded-3xl bg-[#242426] border border-white/10 p-lg flex flex-col justify-between shadow-lg cursor-pointer hover:bg-[#2c2c2e] hover:border-[#ffb700]/40 transition-all group overflow-hidden"
                     >
-                      {/* Subtle Crash Watermark Silhouette in Card Background */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.07] overflow-hidden select-none">
-                        <img src="/crash-silhouette.png" alt="" className="w-48 h-48 object-contain filter invert scale-125 translate-y-4 opacity-80" />
+                      {/* Prominent Large Crash Watermark Silhouette in Card Background */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.11] overflow-hidden select-none">
+                        <img src="/crash-silhouette.png" alt="" className="w-full h-full object-contain filter invert scale-150 translate-y-6" />
                       </div>
 
                       {/* Optional Tag */}
