@@ -30,22 +30,24 @@ export default function CrmSidebar() {
 
       {/* Sidebar Drawer Container */}
       <aside
-        className={`fixed left-0 top-12 h-[calc(100vh-3rem)] w-72 bg-[#1c1c1e] border-r border-white/10 z-50 flex flex-col pt-lg pb-xl transition-transform duration-300 print:hidden ${
+        className={`fixed left-0 top-12 h-[calc(100vh-3rem)] w-72 bg-[#18181b] border-r border-white/10 z-50 flex flex-col pt-lg pb-xl transition-transform duration-300 print:hidden ${
           isCrmMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Brand Header & Mobile Close Button */}
         <div className="px-lg mb-xl flex items-center justify-between">
           <div className="flex items-center gap-sm">
-            <span className="material-symbols-outlined text-primary text-[32px]">lunch_dining</span>
-            <span className="font-headline-lg text-headline-lg tracking-tight text-on-surface">
-              BURGER<span className="text-primary">CRM</span>
+            <div className="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 via-pink-500 to-amber-500 shadow-md shrink-0">
+              <img src="/logo.png" alt="CRASH Logo" className="w-full h-full rounded-full object-cover bg-black" />
+            </div>
+            <span className="font-black text-headline-lg tracking-tight text-on-surface">
+              CRASH<span className="text-primary">CRM</span>
             </span>
           </div>
 
           <button
             onClick={() => setIsCrmMobileSidebarOpen(false)}
-            className="lg:hidden w-8 h-8 rounded-full bg-[#2c2c2e] border border-white/10 text-white flex items-center justify-center hover:bg-primary transition-colors"
+            className="lg:hidden w-8 h-8 rounded-full bg-[#2c2c2e] border border-white/10 text-white flex items-center justify-center hover:bg-primary hover:text-black transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -64,7 +66,7 @@ export default function CrmSidebar() {
                 }}
                 className={`w-full flex items-center px-md py-md rounded-xl transition-all font-body-lg text-left ${
                   isActive
-                    ? 'bg-primary text-on-primary font-bold shadow-md'
+                    ? 'bg-primary text-black font-black shadow-md'
                     : 'text-on-surface-variant hover:bg-surface-container-highest/50 hover:text-on-surface'
                 }`}
               >
