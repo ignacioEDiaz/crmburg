@@ -180,6 +180,12 @@ export default function HomeView() {
 
           {/* Offers Banner Carousel with Gold CRASH Branding */}
           <div className="relative w-full rounded-3xl bg-[#242426] border border-white/10 p-lg md:p-xl flex flex-col gap-sm shadow-xl transition-all overflow-hidden">
+            
+            {/* Subtle Crash Watermark Background */}
+            <div className="absolute right-0 bottom-0 top-0 w-1/2 pointer-events-none opacity-[0.06] flex items-center justify-end pr-4">
+              <img src="/crash-silhouette.png" alt="" className="h-full object-contain filter invert" />
+            </div>
+
             <div className="flex flex-col md:flex-row items-center justify-between gap-md min-h-[160px]">
               <div className="flex flex-col gap-xs relative z-10 w-full md:w-[60%]">
                 <div className="flex items-center gap-xs">
@@ -226,7 +232,7 @@ export default function HomeView() {
             </div>
 
             {/* Carousel Controls: Indicators & Navigation Arrows */}
-            <div className="flex items-center justify-between border-t border-white/10 pt-3 mt-2">
+            <div className="flex items-center justify-between border-t border-white/10 pt-3 mt-2 relative z-10">
               <div className="flex items-center gap-2">
                 {(offers.length > 0 ? offers : [1]).map((_, idx) => (
                   <button
@@ -291,6 +297,11 @@ export default function HomeView() {
                       onClick={() => setSelectedProduct(product)}
                       className="relative w-full rounded-3xl bg-[#242426] border border-white/10 p-lg flex flex-col justify-between shadow-lg cursor-pointer hover:bg-[#2c2c2e] hover:border-[#ffb700]/40 transition-all group overflow-hidden"
                     >
+                      {/* Subtle Crash Watermark Silhouette in Card Background */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.07] overflow-hidden select-none">
+                        <img src="/crash-silhouette.png" alt="" className="w-48 h-48 object-contain filter invert scale-125 translate-y-4 opacity-80" />
+                      </div>
+
                       {/* Optional Tag */}
                       {product.tag && (
                         <div className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-[#ffb700]/20 border border-[#ffb700]/40 flex items-center justify-center">
@@ -312,7 +323,7 @@ export default function HomeView() {
                       </button>
 
                       {/* Prominent Large Product Image */}
-                      <div className="w-full h-44 relative shrink-0 bg-transparent flex items-center justify-center my-2 p-2">
+                      <div className="w-full h-44 relative shrink-0 bg-transparent flex items-center justify-center my-2 p-2 z-10">
                         <img
                           src={product.image}
                           alt={product.name}
@@ -321,7 +332,7 @@ export default function HomeView() {
                       </div>
 
                       {/* Details */}
-                      <div className="flex flex-col gap-xs pt-3 border-t border-white/10">
+                      <div className="flex flex-col gap-xs pt-3 border-t border-white/10 relative z-10">
                         <h4 className="font-extrabold text-title-md text-white line-clamp-1 leading-tight">
                           {product.name}
                         </h4>
