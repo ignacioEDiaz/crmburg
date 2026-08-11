@@ -27,7 +27,7 @@ export default function App() {
   const { currentMode, clientTab, crmTab, isCartOpen, setIsCartOpen } = useApp();
 
   return (
-    <div className="min-h-screen bg-background font-body-lg text-on-background">
+    <div className="min-h-screen bg-background font-body-lg text-on-background w-full overflow-x-hidden overflow-y-auto">
       {/* Top Mode Switcher Header */}
       <NavigationHeader />
 

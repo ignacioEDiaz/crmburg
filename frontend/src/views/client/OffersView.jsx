@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { ArrowLeft, Tag, Flame } from 'lucide-react';
+import OffersCarousel from '../../components/OffersCarousel';
 
 export default function OffersView() {
   const { offers, addToCart, setClientTab, setSelectedProduct, products } = useApp();
@@ -23,18 +24,17 @@ export default function OffersView() {
 
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-headline-xl text-headline-xl text-white font-black">Ofertas Especiales</h2>
+            <h2 className="font-headline-xl text-headline-xl text-white font-black">Carrusel de Ofertas Destacadas</h2>
             <Flame className="w-6 h-6 text-[#ffb700] fill-[#ffb700]" />
           </div>
-          <p className="text-body-sm text-secondary mt-xs">Descuentos exclusivos y promociones administradas por la tienda.</p>
+          <p className="text-body-sm text-secondary mt-xs">Las mejores promociones y combos con hamburguesas flotantes de gran tamaño.</p>
         </div>
 
-        {offers.length === 0 ? (
-          <div className="bg-[#242426] border border-white/10 rounded-3xl p-lg text-center text-secondary text-sm">
-            No hay ofertas promocionales disponibles en este momento.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+        {/* 3D Floating Offers Showcase Carousel */}
+        <OffersCarousel />
+
+        {offers.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg mt-6">
             {offers.map((off) => {
               const matchedProduct = products.find(p => p.name.toLowerCase() === off.productName.toLowerCase()) || products[0];
 

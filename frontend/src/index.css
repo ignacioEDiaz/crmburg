@@ -4,12 +4,14 @@
 
 @layer base {
   html, body {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     margin: 0;
     padding: 0;
     background-color: #121212;
-    overscroll-behavior: none;
     color: #ffffff;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 
@@ -41,4 +43,17 @@
   background: radial-gradient(circle, rgba(255, 183, 0, 0.15) 0%, rgba(18, 18, 18, 0) 70%);
   pointer-events: none;
   z-index: 0;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }

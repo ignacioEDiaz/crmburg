@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import ItemDetailModal from './ItemDetailModal';
+import OffersCarousel from '../../components/OffersCarousel';
 
 export default function HomeView() {
   const { products, categories, offers, setSelectedProduct, selectedProduct, addToCart, clientTab, setClientTab } = useApp();
@@ -17,13 +18,13 @@ export default function HomeView() {
   // Helper to map category name to material icon
   const getCategoryIcon = (name) => {
     const lower = (name || '').toLowerCase();
-    if (lower === 'todas') return 'grid_view';
+    if (lower === 'todas') return 'pie_chart';
     if (lower.includes('hamburguesa')) return 'lunch_dining';
     if (lower.includes('pizza')) return 'local_pizza';
     if (lower.includes('pollo')) return 'set_meal';
     if (lower.includes('papa')) return 'fastfood';
     if (lower.includes('bebida')) return 'local_bar';
-    return 'flatware';
+    return 'restaurant';
   };
 
   // Auto-rotate offers every 5 seconds
@@ -82,7 +83,7 @@ export default function HomeView() {
   };
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto min-h-screen bg-[#121212] font-body-lg text-white pb-12 pt-16 px-4 md:px-8 shadow-2xl">
+    <div className="relative w-full max-w-7xl mx-auto min-h-screen bg-[#121212] font-body-lg text-white pb-12 pt-16 px-4 md:px-8 shadow-2xl overflow-x-hidden overflow-y-visible">
       
       {/* Dark Ambient Golden Amber Glow */}
       <div className="dark-ambient-glow"></div>
@@ -121,149 +122,37 @@ export default function HomeView() {
             </div>
           </div>
 
-          {/* Categories Navigation Bar (Exactly 3 items visible per screen on mobile + smaller icons + Gold Accent) */}
-          <div className="relative flex items-center gap-1.5 w-full bg-[#18181b]/80 p-1.5 rounded-3xl border border-white/5 shadow-md">
-            {/* Left Scroll Arrow */}
-            <button
-              onClick={scrollLeftCategory}
-              className="w-8 h-8 rounded-full bg-[#242426] border border-white/10 flex items-center justify-center text-white hover:bg-[#ffb700] hover:text-black transition-colors shrink-0 shadow-md active:scale-95 z-10"
-              title="Categorías anteriores"
-            >
-              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
-            </button>
+          {/* Offers Banner Carousel with 3D Floating Burger Showcase (No Boxes) */}
+          <OffersCarousel />
 
-            {/* Scrollable Categories Container */}
-            <div
-              ref={categoryContainerRef}
-              className="flex-1 flex items-center gap-2 overflow-x-auto py-1 px-0.5 hide-scrollbar scroll-smooth"
-            >
-              {['Todas', ...categories.map(c => c.name)].map((catName) => {
-                const isActive = activeCategory === catName;
-                return (
-                  <button
-                    key={catName}
-                    onClick={() => setActiveCategory(catName)}
-                    className={`flex flex-col items-center justify-center gap-1 px-2 py-2.5 rounded-2xl border transition-all shrink-0 w-[calc((100%-16px)/3)] sm:w-auto sm:min-w-[120px] ${
-                      isActive
-                        ? 'bg-[#242426] border-[#ffb700] text-[#ffb700] shadow-md ring-1 ring-[#ffb700]/40'
-                        : 'bg-[#242426]/60 border-white/10 text-secondary hover:text-white hover:bg-[#2c2c2e]'
-                    }`}
-                  >
-                    {/* Category Icon */}
-                    <span className={`material-symbols-outlined text-[18px] sm:text-[20px] transition-transform ${isActive ? 'text-[#ffb700] scale-110' : 'text-secondary'}`}>
-                      {getCategoryIcon(catName)}
-                    </span>
-
-                    {/* Category Title in Uppercase */}
-                    <span className={`font-black text-[10px] sm:text-[11px] tracking-wider uppercase text-center truncate w-full ${isActive ? 'text-[#ffb700]' : 'text-secondary'}`}>
-                      {catName}
-                    </span>
-
-                    {/* Active Underline Pill */}
-                    {isActive && (
-                      <span className="w-5 h-0.5 rounded-full bg-[#ffb700] mt-0.5 shadow-sm"></span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Right Scroll Arrow */}
-            <button
-              onClick={scrollRightCategory}
-              className="w-8 h-8 rounded-full bg-[#242426] border border-white/10 flex items-center justify-center text-white hover:bg-[#ffb700] hover:text-black transition-colors shrink-0 shadow-md active:scale-95 z-10"
-              title="Siguientes categorías"
-            >
-              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-            </button>
-          </div>
-
-          {/* Offers Banner Carousel with Gold CRASH Branding */}
-          <div className="relative w-full rounded-3xl bg-[#242426] border border-white/10 p-lg md:p-xl flex flex-col gap-sm shadow-xl transition-all overflow-hidden">
-            
-            {/* Larger Crash Watermark Background in Banner */}
-            <div className="absolute right-0 bottom-0 top-0 w-2/3 pointer-events-none opacity-[0.09] flex items-center justify-end pr-2 overflow-hidden select-none">
-              <img src="/crash-silhouette.png" alt="" className="h-[140%] object-contain filter invert scale-125 translate-y-4" />
-            </div>
-
-            <div className="flex flex-col md:flex-row items-center justify-between gap-md min-h-[160px]">
-              <div className="flex flex-col gap-xs relative z-10 w-full md:w-[60%]">
-                <div className="flex items-center gap-xs">
-                  <span className="material-symbols-outlined text-[#ffb700] text-[16px]">local_fire_department</span>
-                  <span className="font-label-bold text-label-bold text-[#ffb700] font-black uppercase tracking-wider">{activeOffer.discountBadge || 'Oferta Exclusiva CRASH'}</span>
-                </div>
-                
-                <h3 className="text-2xl md:text-3xl font-black text-white leading-tight">
-                  {activeOffer.title}
-                </h3>
-
-                <p className="text-xs md:text-sm text-secondary line-clamp-2 mt-1">{activeOffer.description}</p>
-
-                <div className="flex items-baseline gap-3 mt-2">
-                  <span className="font-price-display text-[#ffb700] font-black text-3xl">$ {Number(activeOffer.offerPrice || 4.99).toFixed(2)}</span>
-                  {activeOffer.originalPrice && (
-                    <span className="line-through text-sm text-secondary font-bold">$ {Number(activeOffer.originalPrice).toFixed(2)}</span>
-                  )}
-                </div>
-
+          {/* Floating Category Pills Selector (2rem vertical padding py-8 for full shadow glow) */}
+          <div className="relative w-full bg-transparent py-8 px-1.5 my-1 flex items-center gap-2.5 sm:gap-3 overflow-x-auto hide-scrollbar scroll-smooth">
+            {['Todas', ...categories.map(c => c.name)].map((catName) => {
+              const isActive = activeCategory === catName;
+              return (
                 <button
-                  onClick={() => {
-                    const matchedProduct = products.find(p => p.name.toLowerCase() === (activeOffer.productName || '').toLowerCase()) || products[0];
-                    if (matchedProduct) {
-                      addToCart({ ...matchedProduct, price: Number(activeOffer.offerPrice) }, 1);
-                    }
-                  }}
-                  className="mt-md bg-[#ffb700] hover:bg-yellow-300 text-black font-black text-xs px-xl py-md rounded-full w-max shadow-lg hover:scale-105 transition-transform uppercase tracking-wider"
+                  key={catName}
+                  onClick={() => setActiveCategory(catName)}
+                  className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 shrink-0 whitespace-nowrap ${
+                    isActive
+                      ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-black font-black shadow-[0_4px_22px_rgba(245,158,11,0.5)] scale-[1.03]'
+                      : 'bg-[#28282c]/80 hover:bg-[#323238] border border-white/10 text-neutral-300 hover:text-white'
+                  }`}
                 >
-                  Pedir Ahora
+                  {/* Category Icon */}
+                  <span className={`material-symbols-outlined text-[18px] sm:text-[20px] transition-colors ${
+                    isActive ? 'text-black font-bold' : 'text-orange-500'
+                  }`}>
+                    {getCategoryIcon(catName)}
+                  </span>
+
+                  {/* Category Title */}
+                  <span className="capitalize tracking-tight font-extrabold">
+                    {catName}
+                  </span>
                 </button>
-              </div>
-
-              <div className="relative w-full md:w-[40%] h-44 md:h-52 z-10 flex items-center justify-center">
-                <div className="absolute top-0 right-0 md:top-2 md:right-4 px-4 py-2 rounded-full bg-black/60 border border-[#ffb700]/40 flex items-center justify-center shadow-lg z-20 backdrop-blur-md">
-                  <span className="font-label-bold text-xs text-[#ffb700] font-black">{activeOffer.discountBadge || 'CRASH OFF'}</span>
-                </div>
-                <img
-                  src={activeOffer.image}
-                  alt={activeOffer.title}
-                  className="w-full h-full object-contain drop-shadow-2xl transition-all duration-500 hover:scale-105"
-                />
-              </div>
-            </div>
-
-            {/* Carousel Controls: Indicators & Navigation Arrows */}
-            <div className="flex items-center justify-between border-t border-white/10 pt-3 mt-2 relative z-10">
-              <div className="flex items-center gap-2">
-                {(offers.length > 0 ? offers : [1]).map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentOfferIndex(idx)}
-                    className={`h-2 rounded-full transition-all ${
-                      currentOfferIndex === idx ? 'w-8 bg-[#ffb700]' : 'w-2 bg-white/20'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={prevOffer}
-                  className="w-9 h-9 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center text-white hover:bg-[#ffb700] hover:text-black transition-colors"
-                  title="Anterior oferta"
-                >
-                  <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-                </button>
-
-                <button
-                  onClick={nextOffer}
-                  className="w-9 h-9 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center text-white hover:bg-[#ffb700] hover:text-black transition-colors"
-                  title="Siguiente oferta"
-                >
-                  <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-                </button>
-              </div>
-            </div>
-
+              );
+            })}
           </div>
 
           {/* Grid Section of Products */}
