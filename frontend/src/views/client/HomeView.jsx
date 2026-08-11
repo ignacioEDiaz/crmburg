@@ -135,7 +135,7 @@ export default function HomeView() {
                   onClick={() => setActiveCategory(catName)}
                   className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 shrink-0 whitespace-nowrap ${
                     isActive
-                      ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-black font-black shadow-[0_4px_22px_rgba(245,158,11,0.5)] scale-[1.03]'
+                      ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-black font-black scale-[1.03]'
                       : 'bg-[#28282c]/80 hover:bg-[#323238] border border-white/10 text-neutral-300 hover:text-white'
                   }`}
                 >
