@@ -63,9 +63,16 @@ export default function ItemDetailModal() {
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight">{selectedProduct.name}</h2>
-              <span className="font-price-display text-[#ffb700] font-black text-2xl sm:text-3xl shrink-0">
-                ${unitPrice.toFixed(2)}
-              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="font-price-display text-[#ffb700] font-black text-2xl sm:text-3xl">
+                  ${unitPrice.toFixed(2)}
+                </span>
+                {selectedProduct.originalPrice && (
+                  <span className="line-through text-xs sm:text-sm text-neutral-400 font-bold">
+                    ${Number(selectedProduct.originalPrice).toFixed(2)}
+                  </span>
+                )}
+              </div>
             </div>
 
             <p className="text-sm text-neutral-300 line-clamp-3 leading-relaxed">{selectedProduct.description}</p>

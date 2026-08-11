@@ -248,9 +248,16 @@ export default function OffersCarousel() {
             return (
               <div
                 key={item.id || index}
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => {
+                  if (isCurrent) {
+                    setSelectedProduct(offerItem);
+                  } else {
+                    setCurrentIndex(index);
+                  }
+                }}
                 className={`absolute transition-all duration-700 ease-out flex items-center justify-center cursor-pointer ${positionStyle}`}
                 style={{ zIndex, opacity }}
+                title={isCurrent ? 'Ver detalles de la oferta' : 'Ver siguiente oferta'}
               >
                 <div className="relative flex flex-col items-center">
                   <img
@@ -288,14 +295,12 @@ export default function OffersCarousel() {
           PEDIR AHORA
         </button>
 
-        {matchedProduct && (
-          <button
-            onClick={() => setSelectedProduct(matchedProduct)}
-            className="px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-full bg-[#2a2a2d] hover:bg-[#353539] text-white font-bold text-xs sm:text-sm border border-white/10 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
-          >
-            Ver Detalles
-          </button>
-        )}
+        <button
+          onClick={() => setSelectedProduct(offerItem)}
+          className="px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-full bg-[#2a2a2d] hover:bg-[#353539] text-white font-bold text-xs sm:text-sm border border-white/10 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+        >
+          Ver Detalles
+        </button>
       </div>
 
     </section>
