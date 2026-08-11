@@ -85,7 +85,7 @@ export default function ItemDetailModal() {
                     onClick={() => setSize(s)}
                     className={`py-2.5 rounded-2xl text-xs font-bold border transition-all ${
                       size === s
-                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black border-transparent font-black scale-[1.02]'
+                        ? 'bg-[#ffb700] text-black border-transparent font-black scale-[1.02]'
                         : 'bg-[#242428]/60 backdrop-blur-md border-white/10 text-neutral-300 hover:text-white hover:bg-[#2e2e34]/80'
                     }`}
                   >
@@ -143,7 +143,7 @@ export default function ItemDetailModal() {
             {/* Submit Button */}
             <button
               onClick={handleAddToCart}
-              className="flex-1 ml-4 py-3.5 px-6 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider hover:scale-105 active:scale-95 transition-all"
+              className="flex-1 ml-4 py-3.5 px-6 rounded-full bg-[#ffb700] hover:bg-yellow-400 text-black font-black text-xs uppercase tracking-wider hover:scale-105 active:scale-95 transition-all"
             >
               Agregar ${totalPrice.toFixed(2)}
             </button>
