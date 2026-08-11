@@ -57,3 +57,27 @@
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
+
+/* Thermal Ticket Printing Rules (POS 58mm/80mm) */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #thermal-ticket-content, #thermal-ticket-content * {
+    visibility: visible !important;
+  }
+  #thermal-ticket-content {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 !important;
+    padding: 4mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: monospace !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

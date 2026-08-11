@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Clock, CheckCircle2, XCircle, Send, Bike, RefreshCw, Layers } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, Send, Bike, RefreshCw, Layers, Printer, Receipt, ChefHat } from 'lucide-react';
+import TicketPrintModal from '../../components/TicketPrintModal';
 
 export default function CrmDailyOrdersView() {
   const { orders, handleAcceptOrder, handleRejectOrder, handleUpdateOrderStatus } = useApp();
   const [activeTab, setActiveTab] = useState('Pendiente'); // 'Pendiente' | 'Aceptado' | 'Rechazado' | 'Enviado'
+
+  // Print Ticket State
+  const [printingOrder, setPrintingOrder] = useState(null);
+  const [ticketType, setTicketType] = useState(null); // 'cliente' | 'cocina' | 'delivery'
 
   const filteredOrders = orders.filter(o => o.status === activeTab);
 
@@ -16,6 +21,15 @@ export default function CrmDailyOrdersView() {
   return (
     <div className="flex flex-col w-full gap-xl">
       
+      {/* Thermal Ticket Print Modal */}
+      {printingOrder && ticketType && (
+        <TicketPrintModal
+          order={printingOrder}
+          ticketType={ticketType}
+          onClose={() => { setPrintingOrder(null); setTicketType(null); }}
+        />
+      )}
+
       {/* Action Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md">
         <div>
@@ -26,7 +40,7 @@ export default function CrmDailyOrdersView() {
             </span>
           </div>
           <p className="text-body-lg text-on-surface-variant mt-xs">
-            Gestiona los pedidos entrantes del día. Al **Aceptar** un pedido, sus ingredientes se descontarán automáticamente del inventario.
+            Gestiona e imprime comadas térmicas (Cliente, Cocina, Delivery) para cada pedido entrante.
           </p>
         </div>
       </div>
@@ -106,7 +120,7 @@ export default function CrmDailyOrdersView() {
           {filteredOrders.map((order) => {
             let parsedItems = [];
             try {
-              parsedItems = JSON.parse(order.itemsJson || '[]');
+              parsedItems = typeof order.itemsJson === 'string' ? JSON.parse(order.itemsJson) : (order.itemsJson || []);
             } catch (e) {
               parsedItems = [];
             }
@@ -121,7 +135,8 @@ export default function CrmDailyOrdersView() {
                   <div className="flex justify-between items-start border-b border-white/10 pb-md mb-md">
                     <div>
                       <span className="font-mono text-[#ffb700] font-black text-xl">{order.code}</span>
-                      <p className="text-xs text-secondary font-bold">Cliente: {order.customerName}</p>
+                      <p className="text-xs text-white font-bold">Cliente: {order.customerName}</p>
+                      {order.customerPhone && <p className="text-[11px] text-neutral-400 font-mono">{order.customerPhone}</p>}
                       <p className="text-[11px] text-secondary">{order.date}</p>
                     </div>
 
@@ -141,8 +156,8 @@ export default function CrmDailyOrdersView() {
                       parsedItems.map((item, idx) => (
                         <div key={idx} className="bg-[#18181b] p-3 rounded-2xl border border-white/5">
                           <div className="flex justify-between items-center text-sm font-bold text-white">
-                            <span>{item.qty || 1}x {item.name}</span>
-                            <span>${((item.price || 0) * (item.qty || 1)).toFixed(2)}</span>
+                            <span>{item.qty || item.quantity || 1}x {item.name}</span>
+                            <span>${((item.price || 0) * (item.qty || item.quantity || 1)).toFixed(2)}</span>
                           </div>
                           {item.options && (
                             <p className="text-[11px] text-[#ffb700] font-semibold mt-1">
@@ -159,8 +174,44 @@ export default function CrmDailyOrdersView() {
                   </div>
                 </div>
 
-                {/* Footer Actions */}
-                <div className="border-t border-white/10 pt-md mt-sm space-y-3">
+                {/* Thermal Ticket Printing Action Bar */}
+                <div className="bg-[#18181b] p-2.5 rounded-2xl border border-white/10 space-y-2 mb-3">
+                  <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                    <Printer className="w-3.5 h-3.5 text-[#ffb700]" />
+                    Imprimir Comanda / Ticket Térmico:
+                  </p>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <button
+                      onClick={() => { setPrintingOrder(order); setTicketType('cliente'); }}
+                      className="py-2 px-1 bg-[#242428] hover:bg-[#ffb700] hover:text-black text-white text-[11px] font-extrabold rounded-xl border border-white/10 transition-all flex flex-col items-center justify-center gap-1 active:scale-95"
+                      title="Imprimir ticket para cliente"
+                    >
+                      <Receipt className="w-3.5 h-3.5" />
+                      <span>Cliente</span>
+                    </button>
+
+                    <button
+                      onClick={() => { setPrintingOrder(order); setTicketType('cocina'); }}
+                      className="py-2 px-1 bg-[#242428] hover:bg-[#ffb700] hover:text-black text-white text-[11px] font-extrabold rounded-xl border border-white/10 transition-all flex flex-col items-center justify-center gap-1 active:scale-95"
+                      title="Imprimir comanda para cocina"
+                    >
+                      <ChefHat className="w-3.5 h-3.5" />
+                      <span>Cocina</span>
+                    </button>
+
+                    <button
+                      onClick={() => { setPrintingOrder(order); setTicketType('delivery'); }}
+                      className="py-2 px-1 bg-[#242428] hover:bg-[#ffb700] hover:text-black text-white text-[11px] font-extrabold rounded-xl border border-white/10 transition-all flex flex-col items-center justify-center gap-1 active:scale-95"
+                      title="Imprimir ticket para repartidor/delivery"
+                    >
+                      <Bike className="w-3.5 h-3.5" />
+                      <span>Delivery</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Footer Status Actions */}
+                <div className="border-t border-white/10 pt-md mt-xs space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-secondary font-bold">Monto Total</span>
                     <span className="font-price-display text-[#ffb700] font-black text-2xl">$ {Number(order.total).toFixed(2)}</span>
