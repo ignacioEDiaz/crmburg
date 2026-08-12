@@ -349,7 +349,7 @@ export default function CrmExpressPosView() {
                     type="tel"
                     placeholder="Teléfono"
                     value={customerPhone}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
                     className="bg-[#242426] border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-neutral-500 outline-none focus:border-[#ffb700]"
                   />
                 </div>
