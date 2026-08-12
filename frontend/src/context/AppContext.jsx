@@ -3,10 +3,27 @@ import * as api from '../services/api';
 
 const AppContext = createContext();
 
+const DEFAULT_INITIAL_INVENTORY = [
+  // Salsas & Aditivos
+  { id: 101, name: 'Salsa Barbacoa Sweet & Smoked', category: 'Aditivos y Salsas', stockQuantity: 95, unit: 'porciones', price: 1.00, minStock: 20, image: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=500&auto=format&fit=crop&q=80' },
+  { id: 102, name: 'Salsa Especial CRASH', category: 'Aditivos y Salsas', stockQuantity: 120, unit: 'porciones', price: 0.75, minStock: 25, image: 'https://images.unsplash.com/photo-1585325701165-351af916e581?w=500&auto=format&fit=crop&q=80' },
+  { id: 103, name: 'Queso Cheddar Fetear Fundido', category: 'Lácteos y Quesos', stockQuantity: 280, unit: 'fetas', price: 1.50, minStock: 50, image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=500&auto=format&fit=crop&q=80' },
+  { id: 104, name: 'Medallón de Carne Certified Angus 120g', category: 'Hamburguesas y Carnes', stockQuantity: 450, unit: 'unidades', price: 2.50, minStock: 100, image: '/images/burger-supreme.jpg' },
+  { id: 105, name: 'Bacon / Panceta Crocante Ahumada', category: 'Hamburguesas y Carnes', stockQuantity: 180, unit: 'fetas', price: 1.50, minStock: 40, image: 'https://images.unsplash.com/photo-1528607929212-2636ec44253e?w=500&auto=format&fit=crop&q=80' },
+  { id: 106, name: 'Cebolla Caramelizada Dulce', category: 'Vegetales y Frescos', stockQuantity: 75, unit: 'porciones', price: 1.00, minStock: 15, image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=500&auto=format&fit=crop&q=80' },
+  { id: 107, name: 'Huevo Frito a la Plancha', category: 'Aditivos y Salsas', stockQuantity: 110, unit: 'unidades', price: 1.00, minStock: 20, image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&auto=format&fit=crop&q=80' },
+  { id: 108, name: 'Papas Bastón McCain Corte Tradicional', category: 'Papas y Guarniciones', stockQuantity: 220, unit: 'kg', price: 2.00, minStock: 50, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&auto=format&fit=crop&q=80' },
+  
+  // Bebidas
+  { id: 1, name: 'Coca-Cola Zero 500ml', category: 'Bebidas y Gaseosas', stockQuantity: 120, unit: 'latas', price: 2.50, minStock: 30, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&auto=format&fit=crop&q=80' },
+  { id: 2, name: 'Cerveza Patagonia Amber Ale 500ml', category: 'Bebidas y Gaseosas', stockQuantity: 85, unit: 'botellas', price: 3.50, minStock: 25, image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=500&auto=format&fit=crop&q=80' },
+  { id: 3, name: 'Agua Mineral Con Gas 600ml', category: 'Bebidas y Gaseosas', stockQuantity: 140, unit: 'botellas', price: 1.80, minStock: 40, image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=500&auto=format&fit=crop&q=80' },
+];
+
 export function AppProvider({ children }) {
   const [currentMode, setCurrentMode] = useState('client'); // 'client' | 'crm'
-  const [clientTab, setClientTab] = useState('home'); // 'home', 'offers', 'orders', 'favorites'
-  const [crmTab, setCrmTab] = useState('daily-orders'); // 'daily-orders', 'reports', 'coupons', 'offers', 'dashboard', 'menu', 'monthly-orders', 'inventory', 'customers', 'settings'
+  const [clientTab, setClientTab] = useState('home');
+  const [crmTab, setCrmTab] = useState('daily-orders');
   const [isCrmMobileSidebarOpen, setIsCrmMobileSidebarOpen] = useState(false);
   
   const [products, setProducts] = useState([]);
@@ -14,7 +31,7 @@ export function AppProvider({ children }) {
   const [offers, setOffers] = useState([]);
   const [coupons, setCoupons] = useState([]);
   
-  // Persistent Orders State from LocalStorage
+  // Persistent Orders State
   const [orders, setOrders] = useState(() => {
     try {
       const saved = localStorage.getItem('crm_orders_real_db_v3');
@@ -24,9 +41,17 @@ export function AppProvider({ children }) {
     }
   });
 
-  const [inventory, setInventory] = useState([]);
+  // Persistent Inventory State
+  const [inventory, setInventory] = useState(() => {
+    try {
+      const saved = localStorage.getItem('crm_inventory_db_v3');
+      return saved ? JSON.parse(saved) : DEFAULT_INITIAL_INVENTORY;
+    } catch (e) {
+      return DEFAULT_INITIAL_INVENTORY;
+    }
+  });
+
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
   const [cart, setCart] = useState([]);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -40,6 +65,15 @@ export function AppProvider({ children }) {
       console.error('Error guardando pedidos:', e);
     }
   }, [orders]);
+
+  // Sync inventory to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('crm_inventory_db_v3', JSON.stringify(inventory));
+    } catch (e) {
+      console.error('Error guardando inventario:', e);
+    }
+  }, [inventory]);
 
   // Load initial data from API
   const loadData = async () => {
@@ -56,9 +90,15 @@ export function AppProvider({ children }) {
       setCategories(cats);
       setOffers(offs);
       setCoupons(coups);
-      setInventory(inv);
 
-      // Merge API orders with local persistent orders
+      if (Array.isArray(inv) && inv.length > 0) {
+        setInventory(prev => {
+          const existingIds = new Set(prev.map(i => i.id));
+          const newFromApi = inv.filter(i => !existingIds.has(i.id));
+          return [...prev, ...newFromApi];
+        });
+      }
+
       if (Array.isArray(ords) && ords.length > 0) {
         setOrders(prev => {
           const existingIds = new Set(prev.map(o => o.id));
@@ -71,43 +111,55 @@ export function AppProvider({ children }) {
     }
   };
 
-  // Real-Time Polling for Daily Orders, Offers & Inventory (every 5s when tab active)
   useEffect(() => {
     loadData();
-    const interval = setInterval(async () => {
-      if (document.hidden) return;
-      try {
-        const [updatedOrders, updatedInv, updatedOffers, updatedCoupons] = await Promise.all([
-          api.fetchOrders(),
-          api.fetchInventory(),
-          api.fetchOffers(),
-          api.fetchCoupons(),
-        ]);
-        
-        setInventory(updatedInv);
-        setOffers(updatedOffers);
-        setCoupons(updatedCoupons);
-
-        if (Array.isArray(updatedOrders) && updatedOrders.length > 0) {
-          setOrders(prev => {
-            const existingIds = new Set(prev.map(o => o.id));
-            const newFromApi = updatedOrders.filter(o => !existingIds.has(o.id));
-            if (newFromApi.length > 0) {
-              return [...prev, ...newFromApi];
-            }
-            return prev;
-          });
-        }
-      } catch (e) {
-        // silent sync
-      }
-    }, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // Automatic Stock Deduction from Order Items & Extras
+  const deductStockFromOrderItems = (items) => {
+    if (!Array.isArray(items)) return;
+
+    setInventory(prevInv => {
+      let updatedInv = [...prevInv];
+
+      items.forEach(item => {
+        const itemQty = item.qty || item.quantity || 1;
+        const itemNameLower = (item.name || '').toLowerCase();
+
+        // 1. Deduct main product if matched in inventory
+        updatedInv = updatedInv.map(invItem => {
+          const invNameLower = (invItem.name || '').toLowerCase();
+          if (invNameLower.includes(itemNameLower) || itemNameLower.includes(invNameLower)) {
+            const newQty = Math.max(0, (invItem.stockQuantity || 0) - itemQty);
+            return { ...invItem, stockQuantity: newQty };
+          }
+          return invItem;
+        });
+
+        // 2. Deduct options/extras if present
+        if (item.options && Array.isArray(item.options.extras)) {
+          item.options.extras.forEach(extra => {
+            const extraNameLower = (extra.rawName || extra.name || '').toLowerCase().replace(/^\+\s*/, '');
+            
+            updatedInv = updatedInv.map(invItem => {
+              const invNameLower = (invItem.name || '').toLowerCase();
+              if (invItem.id === extra.inventoryId || invNameLower.includes(extraNameLower) || extraNameLower.includes(invNameLower)) {
+                const newQty = Math.max(0, (invItem.stockQuantity || 0) - itemQty);
+                return { ...invItem, stockQuantity: newQty };
+              }
+              return invItem;
+            });
+          });
+        }
+      });
+
+      return updatedInv;
+    });
   };
 
   const addToCart = (product, quantity = 1, options = {}) => {
@@ -135,7 +187,13 @@ export function AppProvider({ children }) {
   // Universal placeOrder Handler for POS, Tables, and Client App
   const placeOrder = async (customOrderObj = null) => {
     if (customOrderObj) {
-      // Custom Order from Mostrador Express POS or Gestión de Mesas
+      let parsedItems = [];
+      try {
+        parsedItems = typeof customOrderObj.itemsJson === 'string' ? JSON.parse(customOrderObj.itemsJson) : (customOrderObj.itemsJson || customOrderObj.items || []);
+      } catch (e) {
+        parsedItems = customOrderObj.items || [];
+      }
+
       const newOrder = {
         id: customOrderObj.id || Date.now(),
         code: customOrderObj.code || `#PED-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -146,7 +204,7 @@ export function AppProvider({ children }) {
         paymentMethod: customOrderObj.paymentMethod || 'Efectivo',
         address: customOrderObj.address || '',
         itemsSummary: customOrderObj.itemsSummary || '',
-        itemsJson: customOrderObj.itemsJson || (customOrderObj.items ? JSON.stringify(customOrderObj.items) : '[]'),
+        itemsJson: typeof customOrderObj.itemsJson === 'string' ? customOrderObj.itemsJson : JSON.stringify(parsedItems),
         total: Number(customOrderObj.total || 0),
         status: customOrderObj.status || 'Aceptado',
         date: customOrderObj.date || new Date().toLocaleString()
@@ -158,8 +216,11 @@ export function AppProvider({ children }) {
         console.error('Error guardando en API backend:', e);
       }
 
+      // Automatically deduct stock for items and extras
+      deductStockFromOrderItems(parsedItems);
+
       setOrders(prev => [newOrder, ...prev]);
-      showToast(`🎉 ¡Pedido ${newOrder.code} registrado y visible en Pedidos del Día!`);
+      showToast(`🎉 ¡Pedido ${newOrder.code} registrado y stock de inventario descontado!`);
       return newOrder;
     }
 
@@ -192,7 +253,10 @@ export function AppProvider({ children }) {
       couponCode: appliedCoupon ? appliedCoupon.code : null,
       date: new Date().toLocaleString()
     };
-    
+
+    // Deduct stock
+    deductStockFromOrderItems(itemsFormatted);
+
     try {
       const created = await api.createOrder(newOrderData);
       const orderToAdd = created && created.code ? created : newOrderData;
@@ -208,11 +272,20 @@ export function AppProvider({ children }) {
   };
 
   const handleAcceptOrder = async (orderId) => {
+    const targetOrder = orders.find(o => o.id === orderId);
+    if (targetOrder) {
+      let parsedItems = [];
+      try {
+        parsedItems = typeof targetOrder.itemsJson === 'string' ? JSON.parse(targetOrder.itemsJson) : (targetOrder.itemsJson || targetOrder.items || []);
+      } catch (e) {}
+      deductStockFromOrderItems(parsedItems);
+    }
+
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Aceptado' } : o));
     try {
       await api.acceptOrder(orderId);
     } catch (e) {}
-    showToast(`✅ Pedido #${orderId} ACEPTADO.`);
+    showToast(`✅ Pedido #${orderId} ACEPTADO y stock descontado.`);
   };
 
   const handleRejectOrder = async (orderId) => {
