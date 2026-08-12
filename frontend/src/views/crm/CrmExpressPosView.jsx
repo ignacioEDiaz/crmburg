@@ -520,7 +520,7 @@ export default function CrmExpressPosView() {
                 return (
                   <div
                     key={product.id}
-                    onClick={() => addToPosCart(product)}
+                    onClick={() => addToPosCart(product, true)}
                     className="group relative bg-[#18181b] hover:bg-[#222226] border border-white/10 hover:border-[#ffb700]/60 rounded-3xl p-3.5 flex flex-col justify-between cursor-pointer transition-all duration-200 shadow-xl active:scale-95 select-none"
                   >
                     {/* Quantity Badge if added */}

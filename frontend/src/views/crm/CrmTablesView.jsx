@@ -135,8 +135,8 @@ export default function CrmTablesView() {
     }
   };
 
-  // Add Product to Table Cart (with default options)
-  const addToTableCart = (product, customize = false) => {
+  // Add Product to Table Cart (opens customization modal)
+  const addToTableCart = (product, customize = true) => {
     const newItem = {
       id: product.id,
       name: product.name,
