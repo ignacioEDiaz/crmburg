@@ -4,7 +4,12 @@ import { Search, ShoppingBag, Plus, Minus, Trash2, Printer, CheckCircle2, Zap, D
 import TicketPrintModal from '../../components/TicketPrintModal';
 
 export default function CrmExpressPosView() {
-  const { products, categories, placeOrder, orders, showToast, handleAcceptOrder } = useApp();
+  const context = useApp() || {};
+  const products = Array.isArray(context.products) ? context.products : [];
+  const categories = Array.isArray(context.categories) ? context.categories : [];
+  const orders = Array.isArray(context.orders) ? context.orders : [];
+  const placeOrder = typeof context.placeOrder === 'function' ? context.placeOrder : () => {};
+  const showToast = typeof context.showToast === 'function' ? context.showToast : () => {};
 
   const [posTab, setPosTab] = useState('terminal'); // 'terminal' | 'history'
   const [selectedCategory, setSelectedCategory] = useState('Favoritos');
@@ -37,11 +42,14 @@ export default function CrmExpressPosView() {
     return 'restaurant';
   };
 
-  // Filter products by selected category / search
+  // Filter products safely by selected category / search
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.id.toString().includes(searchQuery);
+    if (!p) return false;
+    const pName = (p.name || '').toLowerCase();
+    const pId = (p.id || '').toString();
+    const matchesSearch = pName.includes(searchQuery.toLowerCase()) || pId.includes(searchQuery);
     if (selectedCategory === 'Favoritos') {
-      return matchesSearch && (p.isPopular || p.price > 0);
+      return matchesSearch && (p.isPopular || (p.price && p.price > 0));
     }
     if (selectedCategory === 'Todas') {
       return matchesSearch;
@@ -51,6 +59,7 @@ export default function CrmExpressPosView() {
 
   // Cart operations
   const addToPosCart = (product) => {
+    if (!product) return;
     setExpressCart(prev => {
       const idx = prev.findIndex(item => item.id === product.id);
       if (idx > -1) {
@@ -84,7 +93,7 @@ export default function CrmExpressPosView() {
   };
 
   // Calculations
-  const subtotal = expressCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = expressCart.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
   const total = subtotal;
   const cashPaid = parseFloat(cashAmount) || 0;
   const changeDue = Math.max(0, cashPaid - total);
@@ -132,7 +141,7 @@ export default function CrmExpressPosView() {
   };
 
   // Express History Filter (orders today)
-  const expressOrdersToday = orders.filter(o => o.code && o.code.startsWith('#EXP'));
+  const expressOrdersToday = orders.filter(o => o && o.code && typeof o.code === 'string' && o.code.startsWith('#EXP'));
 
   return (
     <div className="flex flex-col w-full gap-lg font-sans">
@@ -208,11 +217,11 @@ export default function CrmExpressPosView() {
 
               {/* Touch Category Selector Tiles */}
               <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-1">
-                {['Favoritos', 'Todas', ...categories.map(c => c.name)].map((catName) => {
+                {['Favoritos', 'Todas', ...categories.map(c => c?.name || c)].map((catName) => {
                   const isActive = selectedCategory === catName;
                   return (
                     <button
-                      key={catName}
+                      key={typeof catName === 'string' ? catName : Math.random()}
                       onClick={() => setSelectedCategory(catName)}
                       className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-extrabold transition-all shrink-0 whitespace-nowrap ${
                         isActive
@@ -265,7 +274,7 @@ export default function CrmExpressPosView() {
                       </h4>
                       <div className="flex items-center justify-between pt-1 border-t border-white/5">
                         <span className="font-mono text-[#ffb700] font-black text-sm">
-                          ${Number(product.price).toFixed(2)}
+                          ${Number(product.price || 0).toFixed(2)}
                         </span>
                         <span className="w-7 h-7 rounded-full bg-[#ffb700]/10 group-hover:bg-[#ffb700] text-[#ffb700] group-hover:text-black font-bold flex items-center justify-center text-xs transition-colors">
                           +
@@ -389,7 +398,7 @@ export default function CrmExpressPosView() {
                       <div className="min-w-0 pr-2">
                         <p className="font-bold text-white truncate">{item.name}</p>
                         <p className="text-[11px] text-[#ffb700] font-mono font-black">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ${((item.price || 0) * item.quantity).toFixed(2)}
                         </p>
                       </div>
 
@@ -535,12 +544,12 @@ export default function CrmExpressPosView() {
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="font-mono text-xl font-black text-emerald-400">${Number(order.total).toFixed(2)}</span>
+                      <span className="font-mono text-xl font-black text-emerald-400">${Number(order.total || 0).toFixed(2)}</span>
                       
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => { setPrintingOrder(order); setTicketType('cliente'); }}
-                          className="px-3 py-1.5 rounded-xl bg-[#ffb700] text-black font-black text-xs hover:bg-yellow-300 transition-colors flex items-center gap-1"
+                          className="px-3 py-1.5 rounded-xl bg-[#ffb700] text-[#000000] font-black text-xs hover:bg-yellow-300 transition-colors flex items-center gap-1"
                         >
                           <Printer className="w-3.5 h-3.5" />
                           Reimprimir

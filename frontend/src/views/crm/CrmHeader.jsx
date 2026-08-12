@@ -6,6 +6,7 @@ export default function CrmHeader() {
   const { crmTab, setIsCrmMobileSidebarOpen } = useApp();
 
   const tabTitles = {
+    'express-pos': 'Mostrador Express POS (Caja)',
     'daily-orders': 'Pedidos del Día (Tiempo Real)',
     'reports': 'Reportes y Estadísticas',
     'coupons': 'Cupones de Descuento',
