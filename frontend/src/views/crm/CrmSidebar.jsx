@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { X } from 'lucide-react';
 
 export default function CrmSidebar() {
-  const { crmTab, setCrmTab, isCrmMobileSidebarOpen, setIsCrmMobileSidebarOpen } = useApp();
+  const { crmTab, setCrmTab, isCrmMobileSidebarOpen, setIsCrmMobileSidebarOpen, loadRealTestData } = useApp();
 
   const navItems = [
     { id: 'express-pos', label: 'Mostrador Express', icon: 'point_of_sale' },
@@ -39,7 +39,7 @@ export default function CrmSidebar() {
         }`}
       >
         {/* Brand Header & Mobile Close Button */}
-        <div className="px-lg mb-xl flex items-center justify-between">
+        <div className="px-lg mb-4 flex items-center justify-between">
           <div className="flex items-center gap-sm">
             <div className="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 via-pink-500 to-amber-500 shadow-md shrink-0">
               <img src="/logo.png" alt="CRASH Logo" className="w-full h-full rounded-full object-cover bg-black" />
@@ -54,6 +54,22 @@ export default function CrmSidebar() {
             className="lg:hidden w-8 h-8 rounded-full bg-[#2c2c2e] border border-white/10 text-white flex items-center justify-center hover:bg-[#ffb700] hover:text-black transition-colors"
           >
             <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Action Button: Load Real Test Data */}
+        <div className="px-md mb-3">
+          <button
+            onClick={() => {
+              if (typeof loadRealTestData === 'function') {
+                loadRealTestData();
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 px-md py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-[#ffb700] to-yellow-400 hover:scale-[1.02] text-black font-black text-xs uppercase tracking-wider shadow-lg transition-all active:scale-95 border border-yellow-200/50"
+            title="Cargar hamburguesas, combos, imágenes transparentes PNG y stock real"
+          >
+            <span className="material-symbols-outlined text-[18px]">database</span>
+            ⚡ Test Data
           </button>
         </div>
 
