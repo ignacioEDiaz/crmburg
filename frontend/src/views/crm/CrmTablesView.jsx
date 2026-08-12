@@ -744,37 +744,70 @@ export default function CrmTablesView() {
 
                 {/* Products Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[45vh] overflow-y-auto hide-scrollbar pr-1">
-                  {filteredProducts.map(p => (
-                    <div
-                      key={p.id}
-                      className="bg-[#242426] hover:bg-[#2c2c30] border border-white/10 rounded-2xl p-2.5 flex flex-col justify-between transition-all text-xs group"
-                    >
-                      <img src={p.image || '/images/burger-supreme.jpg'} alt={p.name} className="h-16 object-contain mx-auto my-1 group-hover:scale-105 transition-transform" />
-                      <div>
-                        <p className="font-bold text-white truncate text-[11px]">{p.name}</p>
-                        <p className="font-mono text-[#ffb700] font-black mt-0.5">${Number(p.price || 0).toFixed(2)}</p>
-                      </div>
+                  {filteredProducts.map(p => {
+                    const matchedInv = inventory.find(inv => {
+                      const invName = (inv.name || '').toLowerCase();
+                      const prodName = (p.name || '').toLowerCase();
+                      return inv.id === p.id || invName.includes(prodName) || prodName.includes(invName);
+                    });
+                    const availableStock = matchedInv ? matchedInv.stockQuantity : (p.stockQuantity ?? 100);
+                    const isOutOfStock = availableStock <= 0;
 
-                      {/* Action buttons: 1-Tap Add + Customize Extras */}
-                      <div className="grid grid-cols-2 gap-1 mt-2">
-                        <button
-                          onClick={() => addToTableCart(p, false)}
-                          className="py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] rounded-lg transition-colors"
-                        >
-                          + Añadir
-                        </button>
+                    return (
+                      <div
+                        key={p.id}
+                        className={`relative bg-[#242426] border rounded-2xl p-2.5 flex flex-col justify-between transition-all text-xs group ${
+                          isOutOfStock ? 'opacity-50 border-rose-500/30' : 'hover:bg-[#2c2c30] border-white/10'
+                        }`}
+                      >
+                        {/* Live Stock Badge */}
+                        <span className={`absolute top-1.5 left-1.5 z-20 font-mono font-black text-[9px] px-1.5 py-0.5 rounded-full border ${
+                          isOutOfStock ? 'bg-rose-500/30 text-rose-300 border-rose-500/50' : (
+                            availableStock <= 10 ? 'bg-amber-500/30 text-[#ffb700] border-amber-500/50' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                          )
+                        }`}>
+                          {isOutOfStock ? 'AGOTADO' : `Stock: ${availableStock}`}
+                        </span>
 
-                        <button
-                          onClick={() => addToTableCart(p, true)}
-                          className="py-1.5 bg-[#ffb700] hover:bg-yellow-300 text-black font-black text-[10px] rounded-lg transition-colors flex items-center justify-center gap-0.5"
-                          title="Personalizar aditivos y extras"
-                        >
-                          <Settings className="w-3 h-3 text-black" />
-                          Extras
-                        </button>
+                        <img src={p.image || '/images/burger-supreme.jpg'} alt={p.name} className="h-16 object-contain mx-auto my-1 group-hover:scale-105 transition-transform pt-3" />
+                        <div>
+                          <p className="font-bold text-white truncate text-[11px]">{p.name}</p>
+                          <p className="font-mono text-[#ffb700] font-black mt-0.5">${Number(p.price || 0).toFixed(2)}</p>
+                        </div>
+
+                        {/* Action buttons: 1-Tap Add + Customize Extras */}
+                        <div className="grid grid-cols-2 gap-1 mt-2">
+                          <button
+                            onClick={() => {
+                              if (isOutOfStock) {
+                                showToast(`🔴 "${p.name}" está AGOTADO en inventario`);
+                                return;
+                              }
+                              addToTableCart(p, false);
+                            }}
+                            className="py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] rounded-lg transition-colors"
+                          >
+                            + Añadir
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              if (isOutOfStock) {
+                                showToast(`🔴 "${p.name}" está AGOTADO en inventario`);
+                                return;
+                              }
+                              addToTableCart(p, true);
+                            }}
+                            className="py-1.5 bg-[#ffb700] hover:bg-yellow-300 text-black font-black text-[10px] rounded-lg transition-colors flex items-center justify-center gap-0.5"
+                            title="Personalizar aditivos y extras"
+                          >
+                            <Settings className="w-3 h-3 text-black" />
+                            Extras
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

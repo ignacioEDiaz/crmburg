@@ -33,14 +33,25 @@ export default function CrmExpressPosView() {
   const [printingOrder, setPrintingOrder] = useState(null);
   const [ticketType, setTicketType] = useState(null);
 
+  // Helper: Live stock resolution connecting Mostrador Products directly to Inventory Stock
+  const getInventoryStockForProduct = (product) => {
+    if (!product) return 0;
+    const matched = inventory.find(inv => {
+      const invName = (inv.name || '').toLowerCase();
+      const prodName = (product.name || '').toLowerCase();
+      return inv.id === product.id || invName.includes(prodName) || prodName.includes(invName);
+    });
+    return matched ? matched.stockQuantity : (product.stockQuantity ?? 100);
+  };
+
   // Dynamically derive available Extras & Aditivos 100% from REAL INVENTORY!
   const inventoryExtrasList = inventory.map(item => {
-    let defaultPrice = 1.00;
+    let defaultPrice = 1500.0;
     const lower = (item.name || '').toLowerCase();
-    if (lower.includes('carne') || lower.includes('medallon') || lower.includes('pollo')) defaultPrice = 2.50;
-    else if (lower.includes('cheddar') || lower.includes('queso') || lower.includes('bacon') || lower.includes('panceta')) defaultPrice = 1.50;
-    else if (lower.includes('salsa') || lower.includes('barbacoa') || lower.includes('cebolla')) defaultPrice = 0.90;
-    else if (lower.includes('papa')) defaultPrice = 2.00;
+    if (lower.includes('carne') || lower.includes('medallon') || lower.includes('pollo')) defaultPrice = 2500.0;
+    else if (lower.includes('cheddar') || lower.includes('queso') || lower.includes('bacon') || lower.includes('panceta')) defaultPrice = 1500.0;
+    else if (lower.includes('salsa') || lower.includes('barbacoa') || lower.includes('cebolla')) defaultPrice = 900.0;
+    else if (lower.includes('papa')) defaultPrice = 2000.0;
 
     return {
       id: item.id || `inv-${item.name}`,
@@ -93,6 +104,13 @@ export default function CrmExpressPosView() {
   // Cart operations
   const addToPosCart = (product, customize = true) => {
     if (!product) return;
+
+    const availableStock = getInventoryStockForProduct(product);
+    if (availableStock <= 0) {
+      showToast(`🔴 "${product.name}" está AGOTADO en inventario`);
+      return;
+    }
+
     setExpressCart(prev => {
       const basePrice = Number(product.price || 0);
       const newItem = {
@@ -118,10 +136,19 @@ export default function CrmExpressPosView() {
   const updateQuantity = (index, delta) => {
     setExpressCart(prev => {
       const updated = [...prev];
-      const newQty = updated[index].quantity + delta;
+      const targetItem = updated[index];
+      const availableStock = getInventoryStockForProduct(targetItem);
+      const newQty = targetItem.quantity + delta;
+
+      if (delta > 0 && newQty > availableStock) {
+        showToast(`⚠️ No hay más stock disponible de "${targetItem.name}" (${availableStock} un. en inventario)`);
+        return prev;
+      }
+
       if (newQty <= 0) {
         return updated.filter((_, i) => i !== index);
       }
+
       updated[index].quantity = newQty;
       return updated;
     });
@@ -165,7 +192,7 @@ export default function CrmExpressPosView() {
       // Recalculate price
       const extrasSum = newExtras.reduce((sum, e) => sum + e.price, 0);
       let sizeExtra = 0;
-      if (item.options.size === 'Triple') sizeExtra = 2.00;
+      if (item.options.size === 'Triple') sizeExtra = 2000.0;
 
       item.options = { ...item.options, extras: newExtras };
       item.price = item.basePrice + extrasSum + sizeExtra;
@@ -206,7 +233,7 @@ export default function CrmExpressPosView() {
       const item = { ...updated[editingCartIndex] };
       
       let sizeExtra = 0;
-      if (sizeName === 'Triple') sizeExtra = 2.00;
+      if (sizeName === 'Triple') sizeExtra = 2000.0;
 
       const extrasSum = (item.options.extras || []).reduce((sum, e) => sum + e.price, 0);
       item.options = { ...item.options, size: sizeName };
@@ -359,19 +386,19 @@ export default function CrmExpressPosView() {
                         }`}
                       >
                         <span>{size}</span>
-                        {size === 'Triple' && <span className="text-[10px] opacity-80">+$2.00</span>}
+                        {size === 'Triple' && <span className="text-[10px] opacity-80">+$2000</span>}
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {/* 2. AGREGAR ADITIVOS EXTRAS (CONECTADOS 100% AL INVENTARIO DE LA TIENDA) */}
+              {/* 2. AGREGAR ADITIVOS EXTRAS (CONECTADOS 100% AL INVENTARIO REAL DE LA TIENDA) */}
               <div className="space-y-1.5 border-t border-white/10 pt-3">
                 <div className="flex items-center justify-between">
                   <label className="font-bold text-neutral-300 uppercase tracking-wider text-[11px] block flex items-center gap-1">
                     <Package className="w-3.5 h-3.5 text-[#ffb700]" />
-                    2. Aditivos y Extras Cargados en el Inventario:
+                    2. Extras de Inventario Conectados:
                   </label>
                   <span className="text-[10px] text-neutral-400 font-bold">Descuenta de stock al cobrar</span>
                 </div>
@@ -398,10 +425,10 @@ export default function CrmExpressPosView() {
                           </div>
                           <div className="min-w-0">
                             <span className="truncate block">{extra.name}</span>
-                            <span className="text-[9px] text-neutral-400 block">Stock: {extra.stockQuantity} {extra.unit}</span>
+                            <span className="text-[9px] text-[#ffb700] font-mono font-bold block">Stock: {extra.stockQuantity} {extra.unit}</span>
                           </div>
                         </div>
-                        <span className="font-mono text-[11px] shrink-0 font-black text-[#ffb700]">+${extra.price.toFixed(2)}</span>
+                        <span className="font-mono text-[11px] shrink-0 font-black text-emerald-400">+${extra.price.toFixed(2)}</span>
                       </button>
                     );
                   })}
@@ -465,7 +492,7 @@ export default function CrmExpressPosView() {
             </span>
           </div>
           <p className="text-xs text-neutral-400 font-bold">
-            Toma pedidos en mostrador en segundos, calcula el vuelto e imprime comanda de cocina o cliente en 1-Tap.
+            Toma pedidos en mostrador en segundos. Productos conectan 100% con el stock real del inventario.
           </p>
         </div>
 
@@ -497,7 +524,7 @@ export default function CrmExpressPosView() {
       {posTab === 'terminal' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           
-          {/* LEFT 7 COLS: TOUCH CATALOG OF PRODUCTS */}
+          {/* LEFT 7 COLS: TOUCH CATALOG OF PRODUCTS CONNECTED TO INVENTORY STOCK */}
           <div className="lg:col-span-7 flex flex-col gap-md">
             
             {/* Search Bar & Touch Categories Bar */}
@@ -537,17 +564,27 @@ export default function CrmExpressPosView() {
               </div>
             </div>
 
-            {/* Touch Products Grid */}
+            {/* Touch Products Grid with Real Inventory Stock Badges */}
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-md">
               {filteredProducts.map((product) => {
                 const inCartItem = expressCart.find(i => i.id === product.id);
                 const count = inCartItem ? inCartItem.quantity : 0;
+                const availableStock = getInventoryStockForProduct(product);
+                const isOutOfStock = availableStock <= 0;
 
                 return (
                   <div
                     key={product.id}
-                    onClick={() => addToPosCart(product, true)}
-                    className="group relative bg-[#18181b] hover:bg-[#222226] border border-white/10 hover:border-[#ffb700]/60 rounded-3xl p-3.5 flex flex-col justify-between cursor-pointer transition-all duration-200 shadow-xl active:scale-95 select-none"
+                    onClick={() => {
+                      if (isOutOfStock) {
+                        showToast(`🔴 "${product.name}" está AGOTADO en inventario`);
+                        return;
+                      }
+                      addToPosCart(product, true);
+                    }}
+                    className={`group relative bg-[#18181b] border rounded-3xl p-3.5 flex flex-col justify-between cursor-pointer transition-all duration-200 shadow-xl select-none ${
+                      isOutOfStock ? 'opacity-50 border-rose-500/30 bg-[#161618]' : 'hover:bg-[#222226] border-white/10 hover:border-[#ffb700]/60 active:scale-95'
+                    }`}
                   >
                     {/* Quantity Badge if added */}
                     {count > 0 && (
@@ -556,10 +593,19 @@ export default function CrmExpressPosView() {
                       </span>
                     )}
 
+                    {/* Live Stock Badge from Real Inventory */}
+                    <span className={`absolute top-2.5 left-2.5 z-20 font-mono font-black text-[10px] px-2 py-0.5 rounded-full border shadow-md ${
+                      isOutOfStock ? 'bg-rose-500/30 text-rose-300 border-rose-500/50' : (
+                        availableStock <= 10 ? 'bg-amber-500/30 text-[#ffb700] border-amber-500/50' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                      )
+                    }`}>
+                      {isOutOfStock ? '🔴 AGOTADO' : (availableStock <= 10 ? `⚠️ Stock: ${availableStock}` : `🟢 Stock: ${availableStock}`)}
+                    </span>
+
                     {/* Product Image */}
-                    <div className="w-full h-28 relative flex items-center justify-center my-1">
+                    <div className="w-full h-28 relative flex items-center justify-center my-1 pt-4">
                       <img
-                        src={product.image || '/images/burger-supreme.jpg'}
+                        src={product.image || 'https://pngimg.com/d/burger_PNG19.png'}
                         alt={product.name}
                         className="h-full object-contain drop-shadow-xl group-hover:scale-105 transition-transform"
                       />
@@ -672,7 +718,7 @@ export default function CrmExpressPosView() {
                 {expressCart.length === 0 ? (
                   <div className="text-center py-8 text-neutral-500 font-bold text-xs space-y-1">
                     <p>Toca productos del catálogo para cargar el ticket.</p>
-                    <p className="text-[10px] text-neutral-600 font-normal">Toca en la tarjeta para elegir aditivos y extras de inventario.</p>
+                    <p className="text-[10px] text-neutral-600 font-normal">Cada producto muestra su stock real del inventario.</p>
                   </div>
                 ) : (
                   expressCart.map((item, index) => {
