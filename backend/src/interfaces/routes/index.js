@@ -6,6 +6,11 @@ const OrderController = require('../controllers/OrderController');
 const InventoryController = require('../controllers/InventoryController');
 const OfferController = require('../controllers/OfferController');
 const CouponController = require('../controllers/CouponController');
+const CashSessionController = require('../controllers/CashSessionController');
+const SupplierExpenseController = require('../controllers/SupplierExpenseController');
+const CustomerController = require('../controllers/CustomerController');
+const UserController = require('../controllers/UserController');
+const RecipeController = require('../controllers/RecipeController');
 
 // Products
 router.get('/products', (req, res) => ProductController.getAll(req, res));
@@ -42,5 +47,37 @@ router.patch('/orders/:id/status', (req, res) => OrderController.updateStatus(re
 router.get('/inventory', (req, res) => InventoryController.getAll(req, res));
 router.post('/inventory', (req, res) => InventoryController.create(req, res));
 router.patch('/inventory/:id/stock', (req, res) => InventoryController.updateStock(req, res));
+router.post('/inventory/adjust', (req, res) => RecipeController.adjustStock(req, res));
+
+// Cash Session & Movements (Caja Express)
+router.get('/cash-session/current', (req, res) => CashSessionController.getCurrentSession(req, res));
+router.post('/cash-session/open', (req, res) => CashSessionController.openSession(req, res));
+router.post('/cash-session/close', (req, res) => CashSessionController.closeSession(req, res));
+router.post('/cash-session/movements', (req, res) => CashSessionController.addMovement(req, res));
+router.get('/cash-session/history', (req, res) => CashSessionController.getHistory(req, res));
+
+// Suppliers & Purchases & Operating Expenses
+router.get('/suppliers', (req, res) => SupplierExpenseController.getSuppliers(req, res));
+router.post('/suppliers', (req, res) => SupplierExpenseController.createSupplier(req, res));
+router.get('/purchases', (req, res) => SupplierExpenseController.getPurchases(req, res));
+router.post('/purchases', (req, res) => SupplierExpenseController.createPurchase(req, res));
+router.get('/expenses', (req, res) => SupplierExpenseController.getExpenses(req, res));
+router.post('/expenses', (req, res) => SupplierExpenseController.createExpense(req, res));
+
+// Customers & CRM
+router.get('/customers', (req, res) => CustomerController.getCustomers(req, res));
+router.post('/customers', (req, res) => CustomerController.createCustomer(req, res));
+router.get('/customers/:id/history', (req, res) => CustomerController.getHistory(req, res));
+router.post('/customers/import-csv', (req, res) => CustomerController.importCsv(req, res));
+
+// Users, PIN Authorization & Audit Logs
+router.get('/users', (req, res) => UserController.getUsers(req, res));
+router.post('/users', (req, res) => UserController.createUser(req, res));
+router.post('/users/authorize-pin', (req, res) => UserController.authorizePin(req, res));
+router.get('/audit-logs', (req, res) => UserController.getAuditLogs(req, res));
+
+// Recipes & Costing
+router.get('/recipes/product/:productId', (req, res) => RecipeController.getRecipe(req, res));
+router.post('/recipes', (req, res) => RecipeController.saveRecipe(req, res));
 
 module.exports = router;

@@ -14,28 +14,40 @@ const IngredientModel = sequelize.define('Ingredient', {
   sku: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
   category: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   stockQuantity: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     allowNull: false,
     defaultValue: 0,
   },
   unit: {
     type: DataTypes.STRING,
-    defaultValue: 'un',
+    defaultValue: 'unidades',
+  },
+  unitCost: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0.50, // Costo unitario por unidad de medida
+  },
+  minStock: {
+    type: DataTypes.FLOAT,
+    defaultValue: 20,
   },
   maxStock: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     defaultValue: 500,
   },
   status: {
     type: DataTypes.STRING,
     defaultValue: 'En Stock',
+  },
+  image: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   lastRestock: {
     type: DataTypes.STRING,

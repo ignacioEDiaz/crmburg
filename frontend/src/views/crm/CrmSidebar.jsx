@@ -15,8 +15,10 @@ export default function CrmSidebar() {
     { id: 'dashboard', label: 'Panel Principal', icon: 'grid_view' },
     { id: 'menu', label: 'Menú y Categorías', icon: 'restaurant_menu' },
     { id: 'monthly-orders', label: 'Historial Pedidos', icon: 'calendar_month' },
-    { id: 'inventory', label: 'Inventario', icon: 'inventory_2' },
-    { id: 'customers', label: 'Clientes', icon: 'group' },
+    { id: 'inventory', label: 'Inventario y Recetas', icon: 'inventory_2' },
+    { id: 'suppliers-expenses', label: 'Proveedores y Gastos', icon: 'local_shipping' },
+    { id: 'customers', label: 'Clientes / CRM', icon: 'group' },
+    { id: 'users-roles', label: 'Usuarios & Auditoría', icon: 'badge' },
     { id: 'settings', label: 'Configuración', icon: 'settings' },
   ];
 

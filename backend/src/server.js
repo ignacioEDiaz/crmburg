@@ -9,6 +9,15 @@ require('./infrastructure/models/IngredientModel');
 require('./infrastructure/models/ProductIngredientModel');
 require('./infrastructure/models/OfferModel');
 require('./infrastructure/models/CouponModel');
+require('./infrastructure/models/CashSessionModel');
+require('./infrastructure/models/CashMovementModel');
+require('./infrastructure/models/SupplierModel');
+require('./infrastructure/models/PurchaseInvoiceModel');
+require('./infrastructure/models/OperatingExpenseModel');
+require('./infrastructure/models/CustomerModel');
+require('./infrastructure/models/UserModel');
+require('./infrastructure/models/AuditLogModel');
+require('./infrastructure/models/StockAdjustmentModel');
 
 const seedDatabase = require('./infrastructure/seeders/initialData');
 

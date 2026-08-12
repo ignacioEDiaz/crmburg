@@ -22,7 +22,9 @@ import CrmDashboardView from './views/crm/CrmDashboardView';
 import CrmMenuCategoriesView from './views/crm/CrmMenuCategoriesView';
 import CrmMonthlyOrdersView from './views/crm/CrmMonthlyOrdersView';
 import CrmInventoryView from './views/crm/CrmInventoryView';
+import CrmSuppliersExpensesView from './views/crm/CrmSuppliersExpensesView';
 import CrmCustomersView from './views/crm/CrmCustomersView';
+import CrmUsersRolesView from './views/crm/CrmUsersRolesView';
 import CrmSettingsView from './views/crm/CrmSettingsView';
 
 export default function App() {
@@ -66,7 +68,9 @@ export default function App() {
                 {crmTab === 'menu' && <CrmMenuCategoriesView />}
                 {crmTab === 'monthly-orders' && <CrmMonthlyOrdersView />}
                 {crmTab === 'inventory' && <CrmInventoryView />}
+                {crmTab === 'suppliers-expenses' && <CrmSuppliersExpensesView />}
                 {crmTab === 'customers' && <CrmCustomersView />}
+                {crmTab === 'users-roles' && <CrmUsersRolesView />}
                 {crmTab === 'settings' && <CrmSettingsView />}
               </div>
             </main>

@@ -16,7 +16,7 @@ const ProductIngredientModel = sequelize.define('ProductIngredient', {
     allowNull: false,
   },
   quantityRequired: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     allowNull: false,
     defaultValue: 1,
   },
