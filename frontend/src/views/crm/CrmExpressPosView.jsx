@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Search, ShoppingBag, Plus, Minus, Trash2, Printer, CheckCircle2, Zap, DollarSign, CreditCard, QrCode, ArrowRight, User, Phone, MapPin, Calculator, ChefHat, Bike, History } from 'lucide-react';
+import { Search, ShoppingBag, Plus, Minus, Trash2, Printer, CheckCircle2, Zap, DollarSign, CreditCard, QrCode, ArrowRight, User, Phone, MapPin, Calculator, ChefHat, Bike, History, Utensils } from 'lucide-react';
 import TicketPrintModal from '../../components/TicketPrintModal';
 
 export default function CrmExpressPosView() {
