@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Search, ShoppingBag, Plus, Minus, Trash2, Printer, CheckCircle2, Zap, DollarSign, CreditCard, QrCode, ArrowRight, User, Phone, MapPin, Calculator, ChefHat, Bike, History, Utensils } from 'lucide-react';
+import { Search, ShoppingBag, Plus, Minus, Trash2, Printer, CheckCircle2, Zap, DollarSign, CreditCard, QrCode, ArrowRight, User, Phone, MapPin, Calculator, ChefHat, Bike, History, Utensils, Edit3, X, Sparkles, Check } from 'lucide-react';
 import TicketPrintModal from '../../components/TicketPrintModal';
 
 export default function CrmExpressPosView() {
@@ -24,6 +24,9 @@ export default function CrmExpressPosView() {
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('Efectivo'); // 'Efectivo' | 'MercadoPago' | 'Tarjeta' | 'Transferencia'
   const [cashAmount, setCashAmount] = useState('');
+
+  // Editing Extras/Additives Modal State
+  const [editingCartIndex, setEditingCartIndex] = useState(null);
 
   // Print Ticket State
   const [printingOrder, setPrintingOrder] = useState(null);
@@ -57,17 +60,46 @@ export default function CrmExpressPosView() {
     return matchesSearch && p.category === selectedCategory;
   });
 
+  // Available Aditives / Extras Definition
+  const EXTRAS_LIST = [
+    { id: 'addCheese', name: '+ Queso Cheddar Extra', price: 1.50 },
+    { id: 'extraPatty', name: '+ Medallón de Carne Extra', price: 2.50 },
+    { id: 'extraBacon', name: '+ Bacon Crocante Extra', price: 1.50 },
+    { id: 'extraOnion', name: '+ Cebolla Caramelizada', price: 1.00 },
+    { id: 'extraEgg', name: '+ Huevo Frito Extra', price: 1.00 },
+    { id: 'extraSauce', name: '+ Salsa Especial CRASH', price: 0.75 },
+    { id: 'extraFries', name: '+ Papas Fritas Extra', price: 2.00 },
+  ];
+
+  const REMOVALS_LIST = [
+    'Sin Pepinillos',
+    'Sin Cebolla',
+    'Sin Mayonesa / Salsa',
+    'Sin Tomate',
+    'Sin Queso',
+  ];
+
   // Cart operations
   const addToPosCart = (product) => {
     if (!product) return;
     setExpressCart(prev => {
-      const idx = prev.findIndex(item => item.id === product.id);
-      if (idx > -1) {
-        const updated = [...prev];
-        updated[idx].quantity += 1;
-        return updated;
-      }
-      return [...prev, { ...product, quantity: 1, options: { size: 'Doble' } }];
+      const basePrice = Number(product.price || 0);
+      const newItem = {
+        ...product,
+        basePrice,
+        price: basePrice,
+        quantity: 1,
+        options: {
+          size: 'Doble',
+          extras: [],
+          removals: [],
+          notes: ''
+        }
+      };
+      const newCart = [...prev, newItem];
+      // Automatically open extras editing for the newly added item
+      setEditingCartIndex(newCart.length - 1);
+      return newCart;
     });
   };
 
@@ -85,11 +117,100 @@ export default function CrmExpressPosView() {
 
   const removeFromPosCart = (index) => {
     setExpressCart(prev => prev.filter((_, i) => i !== index));
+    if (editingCartIndex === index) {
+      setEditingCartIndex(null);
+    }
   };
 
   const clearPosCart = () => {
     setExpressCart([]);
     setCashAmount('');
+    setEditingCartIndex(null);
+  };
+
+  // Toggle Extra in Item
+  const toggleExtraInItem = (extraObj) => {
+    if (editingCartIndex === null || !expressCart[editingCartIndex]) return;
+
+    setExpressCart(prev => {
+      const updated = [...prev];
+      const item = { ...updated[editingCartIndex] };
+      const currentExtras = item.options.extras || [];
+      
+      const exists = currentExtras.some(e => e.id === extraObj.id);
+      let newExtras = [];
+      if (exists) {
+        newExtras = currentExtras.filter(e => e.id !== extraObj.id);
+      } else {
+        newExtras = [...currentExtras, extraObj];
+      }
+
+      // Recalculate price
+      const extrasSum = newExtras.reduce((sum, e) => sum + e.price, 0);
+      let sizeExtra = 0;
+      if (item.options.size === 'Doble') sizeExtra = 0;
+      if (item.options.size === 'Triple') sizeExtra = 2.00;
+
+      item.options = { ...item.options, extras: newExtras };
+      item.price = item.basePrice + extrasSum + sizeExtra;
+      updated[editingCartIndex] = item;
+      return updated;
+    });
+  };
+
+  // Toggle Removal in Item
+  const toggleRemovalInItem = (removalName) => {
+    if (editingCartIndex === null || !expressCart[editingCartIndex]) return;
+
+    setExpressCart(prev => {
+      const updated = [...prev];
+      const item = { ...updated[editingCartIndex] };
+      const currentRemovals = item.options.removals || [];
+
+      const exists = currentRemovals.includes(removalName);
+      let newRemovals = [];
+      if (exists) {
+        newRemovals = currentRemovals.filter(r => r !== removalName);
+      } else {
+        newRemovals = [...currentRemovals, removalName];
+      }
+
+      item.options = { ...item.options, removals: newRemovals };
+      updated[editingCartIndex] = item;
+      return updated;
+    });
+  };
+
+  // Set Size in Item
+  const setSizeInItem = (sizeName) => {
+    if (editingCartIndex === null || !expressCart[editingCartIndex]) return;
+
+    setExpressCart(prev => {
+      const updated = [...prev];
+      const item = { ...updated[editingCartIndex] };
+      
+      let sizeExtra = 0;
+      if (sizeName === 'Triple') sizeExtra = 2.00;
+
+      const extrasSum = (item.options.extras || []).reduce((sum, e) => sum + e.price, 0);
+      item.options = { ...item.options, size: sizeName };
+      item.price = item.basePrice + extrasSum + sizeExtra;
+      updated[editingCartIndex] = item;
+      return updated;
+    });
+  };
+
+  // Set Notes in Item
+  const setNotesInItem = (notesText) => {
+    if (editingCartIndex === null || !expressCart[editingCartIndex]) return;
+
+    setExpressCart(prev => {
+      const updated = [...prev];
+      const item = { ...updated[editingCartIndex] };
+      item.options = { ...item.options, notes: notesText };
+      updated[editingCartIndex] = item;
+      return updated;
+    });
   };
 
   // Calculations
@@ -107,6 +228,31 @@ export default function CrmExpressPosView() {
 
     const orderCode = `#EXP-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    const formattedItems = expressCart.map(item => {
+      const extrasStr = (item.options?.extras || []).map(e => e.name).join(', ');
+      const removalsStr = (item.options?.removals || []).join(', ');
+      const notesStr = item.options?.notes ? `[Nota: ${item.options.notes}]` : '';
+      const summaryParts = [
+        item.options?.size ? `Tamaño: ${item.options.size}` : '',
+        extrasStr,
+        removalsStr,
+        notesStr
+      ].filter(Boolean).join(' | ');
+
+      return {
+        id: item.id,
+        name: item.name,
+        qty: item.quantity,
+        price: item.price,
+        options: {
+          size: item.options?.size || 'Doble',
+          addCheese: (item.options?.extras || []).some(e => e.id === 'addCheese'),
+          extraPatty: (item.options?.extras || []).some(e => e.id === 'extraPatty'),
+          summaryText: summaryParts
+        }
+      };
+    });
+
     const newOrder = {
       id: Date.now(),
       code: orderCode,
@@ -115,8 +261,8 @@ export default function CrmExpressPosView() {
       fulfillmentType,
       address: fulfillmentType === 'delivery' ? (deliveryAddress || 'Delivery Express') : (fulfillmentType === 'dinein' ? `Mesa ${tableNumber || '1'}` : 'Retiro en Mostrador Express'),
       paymentMethod,
-      itemsSummary: expressCart.map(i => `${i.quantity}x ${i.name}`).join(', '),
-      itemsJson: JSON.stringify(expressCart),
+      itemsSummary: formattedItems.map(i => `${i.qty}x ${i.name} ${i.options.summaryText ? `(${i.options.summaryText})` : ''}`).join('; '),
+      itemsJson: JSON.stringify(formattedItems),
       total,
       date: new Date().toLocaleString(),
       status: 'Aceptado'
@@ -138,13 +284,16 @@ export default function CrmExpressPosView() {
     setTableNumber('');
     setDeliveryAddress('');
     setCashAmount('');
+    setEditingCartIndex(null);
   };
 
   // Express History Filter (orders today)
   const expressOrdersToday = orders.filter(o => o && o.code && typeof o.code === 'string' && o.code.startsWith('#EXP'));
 
+  const activeEditingItem = editingCartIndex !== null ? expressCart[editingCartIndex] : null;
+
   return (
-    <div className="flex flex-col w-full gap-lg font-sans">
+    <div className="flex flex-col w-full gap-lg font-sans relative">
       
       {/* Thermal Ticket Modal */}
       {printingOrder && ticketType && (
@@ -153,6 +302,129 @@ export default function CrmExpressPosView() {
           ticketType={ticketType}
           onClose={() => { setPrintingOrder(null); setTicketType(null); }}
         />
+      )}
+
+      {/* ================= POS EXTRAS & ADITIVOS CUSTOMIZATION MODAL ================= */}
+      {activeEditingItem && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative w-full max-w-lg bg-[#18181b] border border-[#ffb700]/40 rounded-3xl p-6 shadow-2xl text-white space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#ffb700]" />
+                <div>
+                  <h3 className="font-black text-white text-base sm:text-lg">Aditivos y Extras: {activeEditingItem.name}</h3>
+                  <p className="text-xs text-[#ffb700] font-mono font-bold">Precio Unitario: ${activeEditingItem.price.toFixed(2)}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setEditingCartIndex(null)}
+                className="w-8 h-8 rounded-full bg-[#242426] border border-white/10 flex items-center justify-center text-white hover:bg-[#ffb700] hover:text-black transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Customization Options Body */}
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto hide-scrollbar pr-1 text-xs">
+              
+              {/* 1. TAMAÑO DE HAMBURGUESA / PORCIÓN */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-neutral-300 uppercase tracking-wider text-[11px] block">1. Tamaño / Presentación:</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {['Sencilla', 'Doble', 'Triple'].map((size) => {
+                    const isSel = activeEditingItem.options?.size === size;
+                    return (
+                      <button
+                        key={size}
+                        onClick={() => setSizeInItem(size)}
+                        className={`py-2 px-3 rounded-2xl border text-xs font-black transition-all flex items-center justify-between ${
+                          isSel ? 'bg-[#ffb700] text-black border-[#ffb700] shadow-md' : 'bg-[#242426] border-white/10 text-neutral-300 hover:text-white'
+                        }`}
+                      >
+                        <span>{size}</span>
+                        {size === 'Triple' && <span className="text-[10px] opacity-80">+$2.00</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. AGREGAR ADITIVOS EXTRAS (Suma al precio) */}
+              <div className="space-y-1.5 border-t border-white/10 pt-3">
+                <label className="font-bold text-neutral-300 uppercase tracking-wider text-[11px] block">2. Aditivos y Agregados (Extras):</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {EXTRAS_LIST.map((extra) => {
+                    const isSelected = (activeEditingItem.options?.extras || []).some(e => e.id === extra.id);
+                    return (
+                      <button
+                        key={extra.id}
+                        onClick={() => toggleExtraInItem(extra)}
+                        className={`p-2.5 rounded-2xl border text-xs font-bold transition-all flex items-center justify-between text-left ${
+                          isSelected ? 'bg-amber-500/20 border-[#ffb700] text-[#ffb700] font-black' : 'bg-[#242426] border-white/10 text-neutral-300 hover:text-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${isSelected ? 'bg-[#ffb700] text-black' : 'border border-neutral-500'}`}>
+                            {isSelected ? '✓' : '+'}
+                          </div>
+                          <span className="truncate">{extra.name}</span>
+                        </div>
+                        <span className="font-mono text-[11px] shrink-0">+${extra.price.toFixed(2)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3. QUITAR INGREDIENTES (Sin costo) */}
+              <div className="space-y-1.5 border-t border-white/10 pt-3">
+                <label className="font-bold text-neutral-300 uppercase tracking-wider text-[11px] block">3. Quitar Ingredientes (Sin costo):</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {REMOVALS_LIST.map((rem) => {
+                    const isRemoved = (activeEditingItem.options?.removals || []).includes(rem);
+                    return (
+                      <button
+                        key={rem}
+                        onClick={() => toggleRemovalInItem(rem)}
+                        className={`py-1.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                          isRemoved ? 'bg-rose-500/20 border-rose-500 text-rose-300 font-black' : 'bg-[#242426] border-white/10 text-neutral-400 hover:text-white'
+                        }`}
+                      >
+                        {isRemoved ? `🚫 ${rem}` : rem}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 4. NOTA PARA COCINA */}
+              <div className="space-y-1.5 border-t border-white/10 pt-3">
+                <label className="font-bold text-neutral-300 uppercase tracking-wider text-[11px] block">4. Aclaración / Nota para Cocina:</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Carne bien cocida, sin sal en papas..."
+                  value={activeEditingItem.options?.notes || ''}
+                  onChange={(e) => setNotesInItem(e.target.value)}
+                  className="w-full bg-[#242426] border border-white/10 rounded-2xl px-3 py-2 text-xs text-white placeholder-neutral-500 outline-none focus:border-[#ffb700]"
+                />
+              </div>
+
+            </div>
+
+            {/* Modal Confirm Action */}
+            <button
+              onClick={() => setEditingCartIndex(null)}
+              className="w-full py-3 rounded-2xl bg-[#ffb700] hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl transition-all"
+            >
+              <Check className="w-4 h-4 stroke-[3]" />
+              GUARDAR ADITIVOS Y CONTINUAR TICKET
+            </button>
+
+          </div>
+        </div>
       )}
 
       {/* Top Header & Sub-Tabs */}
@@ -164,7 +436,7 @@ export default function CrmExpressPosView() {
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Mostrador Express POS</h1>
-              <p className="text-xs text-neutral-400 font-bold">Terminal de Cobro Rápido en Caja y Atención al Público</p>
+              <p className="text-xs text-neutral-400 font-bold">Terminal de Cobro Rápido en Caja con Personalización de Aditivos</p>
             </div>
           </div>
         </div>
@@ -393,32 +665,69 @@ export default function CrmExpressPosView() {
                     <p className="text-[11px]">Toca productos de la izquierda para sumar.</p>
                   </div>
                 ) : (
-                  expressCart.map((item, idx) => (
-                    <div key={idx} className="bg-[#242426] border border-white/10 p-2.5 rounded-2xl flex items-center justify-between text-xs">
-                      <div className="min-w-0 pr-2">
-                        <p className="font-bold text-white truncate">{item.name}</p>
-                        <p className="text-[11px] text-[#ffb700] font-mono font-black">
-                          ${((item.price || 0) * item.quantity).toFixed(2)}
-                        </p>
-                      </div>
+                  expressCart.map((item, idx) => {
+                    const extrasList = item.options?.extras || [];
+                    const removalsList = item.options?.removals || [];
+                    const hasExtras = extrasList.length > 0 || removalsList.length > 0 || item.options?.size !== 'Doble' || item.options?.notes;
 
-                      <div className="flex items-center gap-1.5 shrink-0 bg-[#18181b] p-1 rounded-xl border border-white/10">
-                        <button
-                          onClick={() => updateQuantity(idx, -1)}
-                          className="w-5 h-5 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xs"
-                        >
-                          -
-                        </button>
-                        <span className="w-4 text-center font-black text-white text-xs">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(idx, 1)}
-                          className="w-5 h-5 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xs"
-                        >
-                          +
-                        </button>
+                    return (
+                      <div key={idx} className="bg-[#242426] border border-white/10 p-2.5 rounded-2xl flex flex-col gap-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <div className="min-w-0 pr-2">
+                            <p className="font-bold text-white truncate">{item.name}</p>
+                            <p className="text-[11px] text-[#ffb700] font-mono font-black">
+                              ${((item.price || 0) * item.quantity).toFixed(2)}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {/* Edit Aditives Button */}
+                            <button
+                              onClick={() => setEditingCartIndex(idx)}
+                              className="px-2 py-1 bg-[#18181b] hover:bg-[#ffb700] hover:text-black text-[#ffb700] border border-white/10 rounded-xl text-[10px] font-extrabold flex items-center gap-1 transition-all"
+                              title="Editar aditivos y extras"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                              Extras
+                            </button>
+
+                            {/* Qty +/- */}
+                            <div className="flex items-center gap-1 bg-[#18181b] p-1 rounded-xl border border-white/10">
+                              <button
+                                onClick={() => updateQuantity(idx, -1)}
+                                className="w-5 h-5 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xs"
+                              >
+                                -
+                              </button>
+                              <span className="w-4 text-center font-black text-white text-xs">{item.quantity}</span>
+                              <button
+                                onClick={() => updateQuantity(idx, 1)}
+                                className="w-5 h-5 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xs"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Extras Breakdown Tag Row */}
+                        {hasExtras && (
+                          <div className="flex flex-wrap gap-1 text-[10px] bg-[#18181b] p-1.5 rounded-xl border border-white/5">
+                            {item.options?.size && <span className="bg-neutral-800 text-neutral-300 font-bold px-1.5 py-0.5 rounded-md">• {item.options.size}</span>}
+                            {extrasList.map((e, ei) => (
+                              <span key={ei} className="bg-amber-500/20 text-amber-300 font-bold px-1.5 py-0.5 rounded-md">• {e.name}</span>
+                            ))}
+                            {removalsList.map((r, ri) => (
+                              <span key={ri} className="bg-rose-500/20 text-rose-300 font-bold px-1.5 py-0.5 rounded-md">• {r}</span>
+                            ))}
+                            {item.options?.notes && (
+                              <span className="bg-blue-500/20 text-blue-300 font-bold px-1.5 py-0.5 rounded-md">📝 {item.options.notes}</span>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
