@@ -195,6 +195,7 @@ export default function CrmTablesView() {
       code: orderCode,
       customerName: `${selectedTable.name} (${activeFloor})`,
       customerPhone: `Atendido por: ${selectedTable.activeOrder.waiter}`,
+      waiter: selectedTable.activeOrder.waiter,
       fulfillmentType: 'dinein',
       address: `${selectedTable.name} - ${activeFloor}`,
       paymentMethod,
