@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Printer, TrendingUp, Calendar, Filter, Flame, Package, Utensils, CheckCircle2, DollarSign, QrCode, CreditCard, Zap, User, Plus, X, Award, Smile, Coffee, Wine, GlassWater } from 'lucide-react';
+import { Printer, TrendingUp, Calendar, Filter, Flame, Package, Utensils, CheckCircle2, DollarSign, QrCode, CreditCard, Zap, User, Plus, X, Award, Smile, Coffee, Wine, GlassWater, Tag } from 'lucide-react';
 
 export default function CrmReportsView() {
   const context = useApp() || {};
@@ -9,6 +9,7 @@ export default function CrmReportsView() {
   const showToast = typeof context.showToast === 'function' ? context.showToast : () => {};
 
   const [activeReportTab, setActiveReportTab] = useState('daily'); // 'daily' | 'waiters' | 'products'
+  const [selectedSpentCategory, setSelectedSpentCategory] = useState('Todas');
   const [showAddWaitressModal, setShowAddWaitressModal] = useState(false);
 
   // Waitress Profiles State
@@ -36,7 +37,7 @@ export default function CrmReportsView() {
   const cardSales = todayOrders.filter(o => o.paymentMethod === 'Tarjeta').reduce((sum, o) => sum + Number(o.total || 0), 0);
   const transferSales = todayOrders.filter(o => o.paymentMethod === 'Transferencia').reduce((sum, o) => sum + Number(o.total || 0), 0);
 
-  // Items Spent & Sold Today with High Visual Images (Hamburguesas, Tragos, Bebidas, Postres)
+  // Items Spent & Sold Today with Order Codes Mapping
   const itemsMap = {};
   todayOrders.forEach(o => {
     let parsedItems = [];
@@ -46,32 +47,48 @@ export default function CrmReportsView() {
       parsedItems = [];
     }
 
+    const orderCode = o.code || `#PED-${o.id}`;
+
     parsedItems.forEach(item => {
       const key = item.name || 'Producto';
       if (!itemsMap[key]) {
-        const matchedProd = products.find(p => p.name.toLowerCase() === key.toLowerCase());
+        const matchedProd = products.find(p => (p.name || '').toLowerCase() === key.toLowerCase());
         itemsMap[key] = {
           name: key,
           qty: 0,
           revenue: 0,
           image: matchedProd?.image || 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&auto=format&fit=crop&q=80',
-          category: matchedProd?.category || 'Consumo General'
+          category: matchedProd?.category || 'Hamburguesas',
+          orderCodes: []
         };
       }
       itemsMap[key].qty += (item.qty || item.quantity || 1);
       itemsMap[key].revenue += ((item.price || 0) * (item.qty || item.quantity || 1));
+
+      if (!itemsMap[key].orderCodes.includes(orderCode)) {
+        itemsMap[key].orderCodes.push(orderCode);
+      }
     });
   });
 
-  // Default Fallback Visual Items (Tragos, Bebidas, Hamburguesas) if list is empty
+  // Default Fallback Visual Items (Tragos, Bebidas, Hamburguesas) with sample Order Codes if list is empty
   const visualSpentItems = Object.values(itemsMap).length > 0 ? Object.values(itemsMap) : [
-    { name: 'Mojito Tropical Trago Especial', qty: 34, revenue: 16983, image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500&auto=format&fit=crop&q=80', category: 'Tragos y Coctelería' },
-    { name: 'Combo CRASH Supreme Bacon', qty: 58, revenue: 40542, image: '/images/burger-supreme.jpg', category: 'Hamburguesas' },
-    { name: 'Cerveza Patagonia Amber Ale 500ml', qty: 42, revenue: 18900, image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=500&auto=format&fit=crop&q=80', category: 'Bebidas' },
-    { name: 'Promo Parejas 2x1 Doble Carne', qty: 28, revenue: 23520, image: '/images/burger-smash.jpg', category: 'Promos' },
-    { name: 'Milkshake de Dulce de Leche', qty: 22, revenue: 9900, image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&auto=format&fit=crop&q=80', category: 'Postres' },
-    { name: 'Papas Bastón McCain Grandes', qty: 45, revenue: 15750, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&auto=format&fit=crop&q=80', category: 'Guarniciones' },
+    { name: 'Mojito Tropical Trago Especial', qty: 34, revenue: 16983, image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500&auto=format&fit=crop&q=80', category: 'Tragos y Coctelería', orderCodes: ['#EXP-4821', '#ORD-1049', '#MESA-104', '#EXP-9120'] },
+    { name: 'Combo CRASH Supreme Bacon', qty: 58, revenue: 40542, image: '/images/burger-supreme.jpg', category: 'Hamburguesas', orderCodes: ['#EXP-8402', '#ORD-1048', '#MESA-201', '#ORD-1052'] },
+    { name: 'Cerveza Patagonia Amber Ale 500ml', qty: 42, revenue: 18900, image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=500&auto=format&fit=crop&q=80', category: 'Bebidas', orderCodes: ['#EXP-4821', '#MESA-104', '#EXP-3321'] },
+    { name: 'Promo Parejas 2x1 Doble Carne', qty: 28, revenue: 23520, image: '/images/burger-smash.jpg', category: 'Promos', orderCodes: ['#ORD-1047', '#MESA-302'] },
+    { name: 'Milkshake de Dulce de Leche', qty: 22, revenue: 9900, image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&auto=format&fit=crop&q=80', category: 'Postres', orderCodes: ['#MESA-104', '#EXP-9120'] },
+    { name: 'Papas Bastón McCain Grandes', qty: 45, revenue: 15750, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&auto=format&fit=crop&q=80', category: 'Guarniciones', orderCodes: ['#EXP-8402', '#ORD-1048', '#MESA-201'] },
   ];
+
+  // Dynamic Spent Categories List for filtering
+  const spentCategories = ['Todas', ...Array.from(new Set(visualSpentItems.map(i => i.category || 'Hamburguesas')))];
+
+  // Filter spent items by selected category
+  const filteredSpentItems = visualSpentItems.filter(item => {
+    if (selectedSpentCategory === 'Todas') return true;
+    return item.category === selectedSpentCategory;
+  });
 
   // Handle Add New Waitress Profile
   const handleAddWaitress = (e) => {
@@ -165,7 +182,7 @@ export default function CrmReportsView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md border-b border-white/10 pb-4 print:hidden">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Reportes Financieros y Cierre Diario</h1>
-          <p className="text-xs text-neutral-400 font-bold">Ganancias, gastos con fotos de ítems, resumen por medio de pago y meseras</p>
+          <p className="text-xs text-neutral-400 font-bold">Ganancias, gastos con fotos por categoría, códigos de pedido y meseras</p>
         </div>
 
         <button
@@ -186,7 +203,7 @@ export default function CrmReportsView() {
           }`}
         >
           <DollarSign className="w-4 h-4" />
-          Balance Diario & Gastos Visuales
+          Balance Diario & Ítems por Categoría
         </button>
 
         <button
@@ -279,42 +296,92 @@ export default function CrmReportsView() {
             </div>
           </div>
 
-          {/* VISUAL SPENT ITEMS GALLERY (Tragos, Hamburguesas, Insumos con FOTO GRANDE) */}
-          <div className="bg-[#18181b] border border-white/10 rounded-3xl p-6 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
+          {/* VISUAL SPENT ITEMS GALLERY DIVIDED BY CATEGORIES WITH ORDER CODES */}
+          <div className="bg-[#18181b] border border-white/10 rounded-3xl p-6 space-y-5 shadow-xl">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md border-b border-white/10 pb-4">
               <div>
                 <h3 className="font-black text-white text-lg flex items-center gap-2">
                   <Wine className="w-5 h-5 text-[#ffb700]" />
-                  Ítems Consumidos y Gastados Hoy (Tragos, Comidas y Bebidas)
+                  Ítems Consumidos y Gastados Hoy por Categoría
                 </h3>
-                <p className="text-xs text-neutral-400 font-bold">Desglose gráfico con foto para visualizar rápido el consumo del día</p>
+                <p className="text-xs text-neutral-400 font-bold">Cada producto muestra las fotos en grande y los **códigos de pedidos** donde fue solicitado</p>
               </div>
             </div>
 
+            {/* Category Filter Pills Bar */}
+            <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-1">
+              {spentCategories.map((catName) => {
+                const isActive = selectedSpentCategory === catName;
+                const countInCat = catName === 'Todas' ? visualSpentItems.length : visualSpentItems.filter(i => i.category === catName).length;
+
+                return (
+                  <button
+                    key={catName}
+                    onClick={() => setSelectedSpentCategory(catName)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all shrink-0 whitespace-nowrap ${
+                      isActive
+                        ? 'bg-[#ffb700] text-black font-black shadow-md scale-105'
+                        : 'bg-[#242426] border border-white/10 text-neutral-300 hover:text-white hover:bg-[#2c2c30]'
+                    }`}
+                  >
+                    <span>{catName}</span>
+                    <span className={`w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-white'}`}>
+                      {countInCat}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Items Cards Grid with Order Codes */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-md">
-              {visualSpentItems.map((item, idx) => (
-                <div key={idx} className="bg-[#242426] border border-white/10 rounded-3xl p-4 flex flex-col justify-between shadow-lg">
-                  {/* Large Product Image */}
-                  <div className="w-full h-40 rounded-2xl bg-black/40 overflow-hidden mb-3 flex items-center justify-center">
+              {filteredSpentItems.map((item, idx) => (
+                <div key={idx} className="bg-[#242426] border border-white/10 rounded-3xl p-4 flex flex-col justify-between shadow-lg space-y-3">
+                  
+                  {/* Product Image */}
+                  <div className="w-full h-40 rounded-2xl bg-black/40 overflow-hidden flex items-center justify-center relative">
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <span className="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-[#ffb700] font-bold text-[10px] px-2.5 py-1 rounded-full border border-white/10">
+                      {item.category}
+                    </span>
                   </div>
 
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-[#ffb700] uppercase tracking-wider">{item.category}</span>
+                  <div className="space-y-1.5">
                     <h4 className="font-extrabold text-white text-sm line-clamp-1">{item.name}</h4>
                     
-                    <div className="flex justify-between items-center pt-2 border-t border-white/10 mt-2">
+                    <div className="flex justify-between items-center pt-1 border-t border-white/10">
                       <span className="text-xs text-neutral-400 font-bold">Consumido hoy:</span>
-                      <span className="bg-[#ffb700] text-black font-black text-xs px-3 py-1 rounded-full shadow">
+                      <span className="bg-[#ffb700] text-black font-black text-xs px-3 py-0.5 rounded-full shadow">
                         {item.qty} unidades
                       </span>
                     </div>
 
-                    <div className="flex justify-between items-center pt-1">
+                    <div className="flex justify-between items-center">
                       <span className="text-xs text-neutral-400 font-bold">Subtotal:</span>
                       <span className="font-mono text-emerald-400 font-black text-base">$ {item.revenue.toFixed(2)}</span>
                     </div>
+
+                    {/* Order Codes List Section */}
+                    <div className="pt-2 border-t border-white/10 space-y-1">
+                      <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                        <Tag className="w-3 h-3 text-[#ffb700]" />
+                        Solicitado en los pedidos (Códigos):
+                      </span>
+                      <div className="flex flex-wrap gap-1 max-h-16 overflow-y-auto hide-scrollbar pt-0.5">
+                        {item.orderCodes && item.orderCodes.length > 0 ? (
+                          item.orderCodes.map((code, ci) => (
+                            <span key={ci} className="bg-[#ffb700]/15 text-[#ffb700] border border-[#ffb700]/30 font-mono font-black text-[10px] px-2 py-0.5 rounded-md">
+                              {code}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-neutral-500 text-[10px] italic">Sin pedidos registrados hoy</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
+
                 </div>
               ))}
             </div>
