@@ -13,6 +13,7 @@ import FavoritesView from './views/client/FavoritesView';
 import CrmSidebar from './views/crm/CrmSidebar';
 import CrmHeader from './views/crm/CrmHeader';
 import CrmExpressPosView from './views/crm/CrmExpressPosView';
+import CrmTablesView from './views/crm/CrmTablesView';
 import CrmDailyOrdersView from './views/crm/CrmDailyOrdersView';
 import CrmReportsView from './views/crm/CrmReportsView';
 import CrmCouponsView from './views/crm/CrmCouponsView';
@@ -56,6 +57,7 @@ export default function App() {
 
               <div className="relative z-10">
                 {crmTab === 'express-pos' && <CrmExpressPosView />}
+                {crmTab === 'tables' && <CrmTablesView />}
                 {crmTab === 'daily-orders' && <CrmDailyOrdersView />}
                 {crmTab === 'reports' && <CrmReportsView />}
                 {crmTab === 'coupons' && <CrmCouponsView />}

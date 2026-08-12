@@ -7,6 +7,7 @@ export default function CrmHeader() {
 
   const tabTitles = {
     'express-pos': 'Mostrador Express POS (Caja)',
+    'tables': 'Gestión de Mesas y Salón',
     'daily-orders': 'Pedidos del Día (Tiempo Real)',
     'reports': 'Reportes y Estadísticas',
     'coupons': 'Cupones de Descuento',
