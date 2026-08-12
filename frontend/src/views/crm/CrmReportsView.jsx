@@ -46,7 +46,71 @@ export default function CrmReportsView() {
   const cardSales = todayOrders.filter(o => getPaymentCategory(o.paymentMethod) === 'Tarjeta').reduce((sum, o) => sum + Number(o.total || 0), 0);
   const transferSales = todayOrders.filter(o => getPaymentCategory(o.paymentMethod) === 'Transferencia').reduce((sum, o) => sum + Number(o.total || 0), 0);
 
-  // 100% REAL Visual Spent Items Aggregation from Database Orders (No Hardcoded Mock Items!)
+  // Helper to categorize item into Menúes, Bebidas, Ingredientes/Extras, Guarniciones, Postres
+  const getHighLevelCategory = (itemName, matchedProd) => {
+    const nameLower = (itemName || '').toLowerCase();
+
+    // 1. Ingredientes y Extras (Aditivos, queso, medallones, bacon, salsas)
+    if (
+      nameLower.includes('extra') ||
+      nameLower.includes('+') ||
+      nameLower.includes('aditivo') ||
+      nameLower.includes('queso cheddar') ||
+      nameLower.includes('medallón') ||
+      nameLower.includes('bacon') ||
+      nameLower.includes('cebolla caramelizada') ||
+      nameLower.includes('salsa especial')
+    ) {
+      return 'Ingredientes y Extras 🧀';
+    }
+
+    // 2. Bebidas y Tragos
+    if (
+      nameLower.includes('coca') ||
+      nameLower.includes('sprite') ||
+      nameLower.includes('fanta') ||
+      nameLower.includes('agua') ||
+      nameLower.includes('cerveza') ||
+      nameLower.includes('mojito') ||
+      nameLower.includes('trago') ||
+      nameLower.includes('bebida') ||
+      nameLower.includes('500ml') ||
+      nameLower.includes('600ml') ||
+      (matchedProd && matchedProd.category && matchedProd.category.toLowerCase().includes('bebida'))
+    ) {
+      return 'Bebidas y Tragos 🥤';
+    }
+
+    // 3. Guarniciones
+    if (
+      nameLower.includes('papa') ||
+      nameLower.includes('aros de cebolla') ||
+      nameLower.includes('nugget') ||
+      (matchedProd && matchedProd.category && matchedProd.category.toLowerCase().includes('guarnicion'))
+    ) {
+      return 'Guarniciones 🍟';
+    }
+
+    // 4. Postres
+    if (
+      nameLower.includes('milkshake') ||
+      nameLower.includes('helado') ||
+      nameLower.includes('brownie') ||
+      (matchedProd && matchedProd.category && matchedProd.category.toLowerCase().includes('postre'))
+    ) {
+      return 'Postres 🍦';
+    }
+
+    // 5. Matched Product Category
+    if (matchedProd && matchedProd.category) {
+      return matchedProd.category;
+    }
+
+    // Default fallback
+    return 'Menúes y Combos 🍔';
+  };
+
+  // 100% REAL Visual Spent Items Aggregation from Database Orders Categorized Correctly
   const itemsMap = {};
   todayOrders.forEach(o => {
     let parsedItems = [];
@@ -62,12 +126,14 @@ export default function CrmReportsView() {
       const key = item.name || 'Producto';
       if (!itemsMap[key]) {
         const matchedProd = products.find(p => (p.name || '').toLowerCase() === key.toLowerCase());
+        const resolvedCategory = getHighLevelCategory(key, matchedProd);
+
         itemsMap[key] = {
           name: key,
           qty: 0,
           revenue: 0,
           image: matchedProd?.image || '/images/burger-supreme.jpg',
-          category: matchedProd?.category || 'Hamburguesas',
+          category: resolvedCategory,
           orderCodes: []
         };
       }
@@ -82,8 +148,8 @@ export default function CrmReportsView() {
 
   const visualSpentItems = Object.values(itemsMap);
 
-  // Dynamic Spent Categories List for filtering
-  const spentCategories = ['Todas', ...Array.from(new Set(visualSpentItems.map(i => i.category || 'Hamburguesas')))];
+  // Dynamic Spent Categories List for filtering (Menúes, Bebidas, Ingredientes, etc.)
+  const spentCategories = ['Todas', ...Array.from(new Set(visualSpentItems.map(i => i.category || 'Menúes y Combos 🍔')))];
 
   // Filter spent items by selected category
   const filteredSpentItems = visualSpentItems.filter(item => {
@@ -211,7 +277,7 @@ export default function CrmReportsView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md border-b border-white/10 pb-4 print:hidden">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Reportes Financieros y Cierre Diario</h1>
-          <p className="text-xs text-neutral-400 font-bold">Datos 100% reales de la base de datos: Ganancias, medios de pago, consumo visual y pedidos por mesera</p>
+          <p className="text-xs text-neutral-400 font-bold">Datos reales clasificados por Menúes, Bebidas, Ingredientes/Extras, Guarniciones y Postres</p>
         </div>
 
         <button
@@ -232,7 +298,7 @@ export default function CrmReportsView() {
           }`}
         >
           <DollarSign className="w-4 h-4" />
-          Balance Diario & Ítems por Categoría
+          Balance Diario & Ítems por Categoría (Menúes, Bebidas, Ingredientes)
         </button>
 
         <button
@@ -325,51 +391,49 @@ export default function CrmReportsView() {
             </div>
           </div>
 
-          {/* VISUAL SPENT ITEMS GALLERY DIVIDED BY CATEGORIES WITH REAL ORDER CODES */}
+          {/* VISUAL SPENT ITEMS GALLERY DIVIDED BY MENÚES, BEBIDAS, INGREDIENTES, ETC. */}
           <div className="bg-[#18181b] border border-white/10 rounded-3xl p-6 space-y-5 shadow-xl">
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md border-b border-white/10 pb-4">
               <div>
                 <h3 className="font-black text-white text-lg flex items-center gap-2">
                   <Wine className="w-5 h-5 text-[#ffb700]" />
-                  Ítems Consumidos y Gastados Hoy por Categoría (100% Datos Reales)
+                  Ítems Consumidos Divididos por Menúes, Bebidas e Ingredientes
                 </h3>
                 <p className="text-xs text-neutral-400 font-bold">Cada producto muestra las fotos en grande y los **códigos de pedidos reales** donde fue solicitado</p>
               </div>
             </div>
 
-            {/* Category Filter Pills Bar */}
-            {spentCategories.length > 1 && (
-              <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-1">
-                {spentCategories.map((catName) => {
-                  const isActive = selectedSpentCategory === catName;
-                  const countInCat = catName === 'Todas' ? visualSpentItems.length : visualSpentItems.filter(i => i.category === catName).length;
+            {/* Category Filter Pills Bar (Menúes, Bebidas, Ingredientes/Extras, Guarniciones, Postres) */}
+            <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-1">
+              {spentCategories.map((catName) => {
+                const isActive = selectedSpentCategory === catName;
+                const countInCat = catName === 'Todas' ? visualSpentItems.length : visualSpentItems.filter(i => i.category === catName).length;
 
-                  return (
-                    <button
-                      key={catName}
-                      onClick={() => setSelectedSpentCategory(catName)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold transition-all shrink-0 whitespace-nowrap ${
-                        isActive
-                          ? 'bg-[#ffb700] text-black font-black shadow-md scale-105'
-                          : 'bg-[#242426] border border-white/10 text-neutral-300 hover:text-white hover:bg-[#2c2c30]'
-                      }`}
-                    >
-                      <span>{catName}</span>
-                      <span className={`w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-white'}`}>
-                        {countInCat}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+                return (
+                  <button
+                    key={catName}
+                    onClick={() => setSelectedSpentCategory(catName)}
+                    className={`flex items-center gap-2 px-4.5 py-2.5 rounded-full text-xs font-extrabold transition-all shrink-0 whitespace-nowrap ${
+                      isActive
+                        ? 'bg-[#ffb700] text-black font-black shadow-md scale-105'
+                        : 'bg-[#242426] border border-white/10 text-neutral-300 hover:text-white hover:bg-[#2c2c30]'
+                    }`}
+                  >
+                    <span>{catName}</span>
+                    <span className={`w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-white'}`}>
+                      {countInCat}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
 
             {/* Items Cards Grid with Real Order Codes */}
             {filteredSpentItems.length === 0 ? (
               <div className="bg-[#242426] p-8 rounded-3xl border border-white/10 text-center space-y-2">
                 <FileText className="w-10 h-10 mx-auto text-neutral-500 opacity-40" />
-                <h4 className="font-bold text-white text-base">No hay ítems registrados en la base de datos para esta categoría hoy</h4>
+                <h4 className="font-bold text-white text-base">No hay ítems registrados en la base de datos para la categoría "{selectedSpentCategory}" hoy</h4>
                 <p className="text-xs text-neutral-400">Los productos consumidos aparecerán aquí automáticamente en tiempo real a medida que ingresen pedidos desde la App Cliente, Mostrador Express o Gestión de Mesas.</p>
               </div>
             ) : (
