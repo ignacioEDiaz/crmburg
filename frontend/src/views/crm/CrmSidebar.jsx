@@ -6,6 +6,7 @@ export default function CrmSidebar() {
   const { crmTab, setCrmTab, isCrmMobileSidebarOpen, setIsCrmMobileSidebarOpen } = useApp();
 
   const navItems = [
+    { id: 'express-pos', label: 'Mostrador Express', icon: 'point_of_sale' },
     { id: 'daily-orders', label: 'Pedidos del Día', icon: 'notifications_active' },
     { id: 'reports', label: 'Reportes y Estadísticas', icon: 'analytics' },
     { id: 'coupons', label: 'Cupones de Descuento', icon: 'confirmation_number' },
